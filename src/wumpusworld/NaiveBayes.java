@@ -1,8 +1,8 @@
 package wumpusworld;
 
-import java.util.ArrayList;
+import wumpusworld.dijkstra.Dijkstra;
+
 import java.util.List;
-import java.util.Random;
 
 public class NaiveBayes {
 
