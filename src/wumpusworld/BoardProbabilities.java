@@ -90,18 +90,24 @@ public class BoardProbabilities {
     private static double calculateNewPitProb(Point point) {
         List<Point> newFrontier = new ArrayList<>(_frontier);
         newFrontier.remove(point);
-        setPitFrontierValues(_boardProbabilities, newFrontier, new ArrayList<>());
+        setPitFrontierValues(Arrays.copyOf(_boardProbabilities, _boardProbabilities.length), newFrontier, new ArrayList<>(), new ArrayList<>());
         double sum_pit = _pitFrontierValues.stream().mapToDouble(f -> f).sum();
-        double sum_noPit = _pitFrontierValues.stream().mapToDouble(f -> (1 - f)).sum();
+
+        List<Point> pits = new ArrayList<>();
+        pits.add(point);
+        _pitFrontierValues.clear();
+        setPitFrontierValues(Arrays.copyOf(_boardProbabilities, _boardProbabilities.length), newFrontier, new ArrayList<>(), pits);
+        double sum_noPit = _pitFrontierValues.stream().mapToDouble(f -> f).sum();
 
         double pitValue = sum_pit * _pitProbability;
         double noPitValue = sum_noPit * (1 - _pitProbability);
         double alpha = pitValue / noPitValue;
 
+        _pitFrontierValues.clear();
         return pitValue * alpha;
     }
 
-    private static void setPitFrontierValues(FieldPropability[][] pip_probability, List<Point> frontier, List<Double> probabilities) {
+    private static void setPitFrontierValues(FieldPropability[][] pip_probability, List<Point> frontier, List<Double> probabilities, List<Point> pits) {
         if (frontier.isEmpty()) {
             double res = 1;
             if (probabilities.isEmpty()) {
@@ -118,41 +124,36 @@ public class BoardProbabilities {
         }
 
         Point point = frontier.get(0);
-        frontier.remove(0);
         if (breezeAround(point)) {
-            if (hasToBePit(point)) {
+            if (hasToBePit(point, pits)) {
                 List<Point> newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
                 List<Double> newProbabilities = new ArrayList<>(probabilities);
-                _boardProbabilities[point.y][point.x].setPit_prob(1);
                 newProbabilities.add(1.0);
-                FieldPropability[][] new_pip_probability = Arrays.copyOf(pip_probability, pip_probability.length);
-                new_pip_probability[point.y][point.x].setPit_prob(1);
+                FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
+                new_pit_probability[point.y][point.x].setPit_prob(1);
 
-                setPitFrontierValues(new_pip_probability, newFrontier, newProbabilities);
+                setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
             }
             else{
                 List<Point> newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
                 List<Double> newProbabilities = new ArrayList<>(probabilities);
                 newProbabilities.add(_boardProbabilities[point.y][point.x].getPit_prob());
-                FieldPropability[][] new_pip_probability = Arrays.copyOf(pip_probability, pip_probability.length);
-                new_pip_probability[point.y][point.x].setPit_prob(1);
+                FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
+                new_pit_probability[point.y][point.x].setPit_prob(1);
 
-                setPitFrontierValues(new_pip_probability, newFrontier, newProbabilities);
+                setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
 
 
                 newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
                 newProbabilities = new ArrayList<>(probabilities);
-                System.out.println("-------------");
-                printPitProbabilities();
-                System.out.println("-------------");
                 newProbabilities.add(1 - _boardProbabilities[point.y][point.x].getPit_prob());
-                new_pip_probability = Arrays.copyOf(pip_probability, pip_probability.length);
-                new_pip_probability[point.y][point.x].setPit_prob(0);
+                new_pit_probability = deepCopy(pip_probability);
+                new_pit_probability[point.y][point.x].setPit_prob(0);
 
-                setPitFrontierValues(new_pip_probability, newFrontier, newProbabilities);
+                setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
             }
         }
         else {
@@ -160,11 +161,10 @@ public class BoardProbabilities {
             newFrontier.remove(point);
             List<Double> newProbabilities = new ArrayList<>(probabilities);
             _boardProbabilities[point.y][point.x].setPit_prob(0.0);
-            newProbabilities.add(1.0);
-            FieldPropability[][] new_pip_probability = Arrays.copyOf(pip_probability, pip_probability.length);
-            new_pip_probability[point.y][point.x].setPit_prob(0);
+            FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
+            new_pit_probability[point.y][point.x].setPit_prob(0);
 
-            setPitFrontierValues(new_pip_probability, newFrontier, newProbabilities);
+            setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
         }
     }
 
@@ -178,7 +178,7 @@ public class BoardProbabilities {
         return false;
     }
 
-    private static boolean hasToBePit(Point point) {
+    private static boolean hasToBePit(Point point, List<Point> pits){
         if (breezeAround(point)) {
             for (Point p : getNeighbors(point)) {
                 if (_world.hasBreeze(p.x + 1, p.y + 1)) {
@@ -189,6 +189,10 @@ public class BoardProbabilities {
                             break;
                         }
                         if (!_world.hasPit(q.x + 1, q.y + 1)) {
+                            res = false;
+                            break;
+                        }
+                        if (!pits.contains(q)) {
                             res = false;
                             break;
                         }
@@ -232,6 +236,16 @@ public class BoardProbabilities {
         Point res = new Point(x + 1, y + 1);
         _frontier.remove(new Point(x, y));
         return res;
+    }
+
+    public static FieldPropability[][] deepCopy(FieldPropability[][] original) {
+        FieldPropability[][] result = new FieldPropability[original.length][original[0].length];
+        for (int i = 0; i < original.length; i++) {
+            for (int j = 0; j < original[0].length;j++) {
+                result[i][j] = original[i][j].copy();
+            }
+        }
+        return result;
     }
 
 

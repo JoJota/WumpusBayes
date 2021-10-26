@@ -45,4 +45,8 @@ public class FieldPropability {
         danger_prob = ((wumpus_prob * wumpus_weight / total_weight) + (pit_prob * pit_weight / total_weight)) / 2;
     }
 
+    public FieldPropability copy() {
+        return new FieldPropability(wumpus_prob, pit_prob);
+    }
+
 }
