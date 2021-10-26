@@ -47,8 +47,8 @@ public class NaiveBayes {
         LEFT.x = player_x - 1;
         LEFT.y = player_y;
 
-        addBorder(UP);
         addBorder(RIGHT);
+        addBorder(UP);
         addBorder(BOTTOM);
         addBorder(LEFT);
     }

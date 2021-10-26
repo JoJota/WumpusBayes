@@ -42,7 +42,9 @@ public class BoardProbabilities {
 
     public static void AddPointToFrontier(int x, int y) {
         Point p = new Point(x, y);
-        _frontier.add(p);
+        if (!_frontier.contains(p)) {
+            _frontier.add(p);
+        }
     }
 
     public static void CalculateNewProbabilities(World world) {
@@ -64,7 +66,13 @@ public class BoardProbabilities {
     private static void printPitProbabilities() {
         for (int i = _boardProbabilities.length - 1;i >= 0;i--) {
             for (int j = 0;j < _boardProbabilities[0].length;j++) {
-                System.out.print(_boardProbabilities[i][j].getPit_prob());
+                Point p = new Point(j, i);
+                if (_frontier.contains(p)) {
+                    System.out.print("[" + _boardProbabilities[i][j].getPit_prob() + "]");
+                }
+                else {
+                    System.out.print(_boardProbabilities[i][j].getPit_prob());
+                }
                 System.out.print("  ");
             }
             System.out.println();
@@ -112,30 +120,47 @@ public class BoardProbabilities {
         Point point = frontier.get(0);
         frontier.remove(0);
         if (breezeAround(point)) {
-            if (!hasToBePit(point)) {
+            if (hasToBePit(point)) {
+                List<Point> newFrontier = new ArrayList<>(frontier);
+                newFrontier.remove(point);
+                List<Double> newProbabilities = new ArrayList<>(probabilities);
+                _boardProbabilities[point.y][point.x].setPit_prob(1);
+                newProbabilities.add(1.0);
+                FieldPropability[][] new_pip_probability = Arrays.copyOf(pip_probability, pip_probability.length);
+                new_pip_probability[point.y][point.x].setPit_prob(1);
+
+                setPitFrontierValues(new_pip_probability, newFrontier, newProbabilities);
+            }
+            else{
                 List<Point> newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
                 List<Double> newProbabilities = new ArrayList<>(probabilities);
                 newProbabilities.add(_boardProbabilities[point.y][point.x].getPit_prob());
                 FieldPropability[][] new_pip_probability = Arrays.copyOf(pip_probability, pip_probability.length);
+                new_pip_probability[point.y][point.x].setPit_prob(1);
+
+                setPitFrontierValues(new_pip_probability, newFrontier, newProbabilities);
+
+
+                newFrontier = new ArrayList<>(frontier);
+                newFrontier.remove(point);
+                newProbabilities = new ArrayList<>(probabilities);
+                System.out.println("-------------");
+                printPitProbabilities();
+                System.out.println("-------------");
+                newProbabilities.add(1 - _boardProbabilities[point.y][point.x].getPit_prob());
+                new_pip_probability = Arrays.copyOf(pip_probability, pip_probability.length);
                 new_pip_probability[point.y][point.x].setPit_prob(0);
 
                 setPitFrontierValues(new_pip_probability, newFrontier, newProbabilities);
             }
-            List<Point> newFrontier = new ArrayList<>(frontier);
-            newFrontier.remove(point);
-            List<Double> newProbabilities = new ArrayList<>(probabilities);
-            newProbabilities.add(_boardProbabilities[point.y][point.x].getPit_prob());
-            FieldPropability[][] new_pip_probability = Arrays.copyOf(pip_probability, pip_probability.length);
-            new_pip_probability[point.y][point.x].setPit_prob(1);
-
-            setPitFrontierValues(new_pip_probability, newFrontier, newProbabilities);
         }
         else {
             List<Point> newFrontier = new ArrayList<>(frontier);
             newFrontier.remove(point);
             List<Double> newProbabilities = new ArrayList<>(probabilities);
-            newProbabilities.add(_boardProbabilities[point.y][point.x].getPit_prob());
+            _boardProbabilities[point.y][point.x].setPit_prob(0.0);
+            newProbabilities.add(1.0);
             FieldPropability[][] new_pip_probability = Arrays.copyOf(pip_probability, pip_probability.length);
             new_pip_probability[point.y][point.x].setPit_prob(0);
 
@@ -144,7 +169,8 @@ public class BoardProbabilities {
     }
 
     private static boolean breezeAround(Point point) {
-        for (Point p : getNeighbors(point)) {
+        List<Point> neighbors = getNeighbors(point);
+        for (Point p : neighbors) {
             if (_world.hasBreeze(p.x + 1, p.y + 1)) {
                 return true;
             }
@@ -177,8 +203,8 @@ public class BoardProbabilities {
     }
 
     private static List<Point> getNeighbors(Point point) {
-        int x = point.x + 1;
-        int y = point.y + 1;
+        int x = point.x;
+        int y = point.y;
 
         List<Point> res = new ArrayList<>();
         res.add(new Point(x - 1, y));
@@ -190,23 +216,21 @@ public class BoardProbabilities {
     }
 
     public static Point GetNextPosition() {
-        double minDanger = Double.NEGATIVE_INFINITY;
+        double minDanger = Double.POSITIVE_INFINITY;
         int x = 0;
         int y = 0;
 
-        for (int i = 0;i < _boardProbabilities.length;i++) {
-            for (int j = 0;j < _boardProbabilities[0].length;j++) {
-                double danger = GetDangerProbability(i, j);
-                if (danger < minDanger) {
-                    minDanger = danger;
-                    x = i;
-                    y = j;
-                }
+        for (Point p : _frontier) {
+            double danger = GetDangerProbability(p.x, p.y);
+            if (danger < minDanger) {
+                minDanger = danger;
+                x = p.x;
+                y = p.y;
             }
         }
 
-        Point res = new Point(x, y);
-        _frontier.remove(res);
+        Point res = new Point(x + 1, y + 1);
+        _frontier.remove(new Point(x, y));
         return res;
     }
 
