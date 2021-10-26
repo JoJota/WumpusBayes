@@ -138,7 +138,7 @@ public class GUI implements ActionListener
         
         //Add buttons panel
         JPanel buttons = new JPanel();
-        buttons.setPreferredSize(new Dimension(200,600));
+        buttons.setPreferredSize(new Dimension(250,600));
         buttons.setLayout(new FlowLayout());
         //Status label
         status = new JLabel("", SwingConstants.CENTER);
@@ -162,17 +162,17 @@ public class GUI implements ActionListener
         br.addActionListener(this);
         buttons.add(br);
         JButton bg = new JButton("Grab");
-        bg.setPreferredSize(new Dimension(45,22));
+        bg.setPreferredSize(new Dimension(70,22));
         bg.setActionCommand("GRAB");
         bg.addActionListener(this);
         buttons.add(bg);
         JButton bc = new JButton("Climb");
-        bc.setPreferredSize(new Dimension(55,22));
+        bc.setPreferredSize(new Dimension(70,22));
         bc.setActionCommand("CLIMB");
         bc.addActionListener(this);
         buttons.add(bc);
         JButton bs = new JButton("Shoot");
-        bs.setPreferredSize(new Dimension(65,22));
+        bs.setPreferredSize(new Dimension(70,22));
         bs.setActionCommand("SHOOT");
         bs.addActionListener(this);
         buttons.add(bs);

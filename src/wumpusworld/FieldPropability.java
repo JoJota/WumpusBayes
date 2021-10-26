@@ -1,27 +1,19 @@
 package wumpusworld;
 
 public class FieldPropability {
-    private Direction dir;
     private double wumpus_prob;
     private double pit_prob;
     private double danger_prob;
+    private final double wumpus_weight = 5;
+    private final double pit_weight = 1;
 
-    public FieldPropability(Direction dir) {
-        this.dir = dir;
+    public FieldPropability() {
+
     }
-    public FieldPropability(Direction dir, double wumpus_prob, double pit_prob, double danger_prob) {
-        this.dir = dir;
+    public FieldPropability(double wumpus_prob, double pit_prob) {
         this.wumpus_prob = wumpus_prob;
         this.pit_prob = pit_prob;
-        this.danger_prob = danger_prob;
-    }
-
-    public Direction getDir() {
-        return dir;
-    }
-
-    public void setDir(Direction dir) {
-        this.dir = dir;
+        calculateDanagerProbability();
     }
 
     public double getWumpus_prob() {
@@ -46,6 +38,11 @@ public class FieldPropability {
 
     public void setDanger_prob(double danger_prob) {
         this.danger_prob = danger_prob;
+    }
+
+    public void calculateDanagerProbability() {
+        double total_weight = wumpus_weight + pit_weight;
+        danger_prob = ((wumpus_prob * wumpus_weight / total_weight) + (pit_prob * pit_weight / total_weight)) / 2;
     }
 
 }
