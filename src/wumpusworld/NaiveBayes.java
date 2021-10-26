@@ -23,11 +23,20 @@ public class NaiveBayes {
         BoardProbabilities.CalculateNewProbabilities(w);
         Point newPosition = BoardProbabilities.GetNextPosition();
 
+
+
         List<String> moves = Dijkstra.GetShortestPath(w, newPosition);
 
         System.out.println("Moving to point(x={" + newPosition.x + "}|y={" + newPosition.y + "}");
+
+        /*if (moves.size() == 0) {
+            System.out.println("Moves is empty");
+            w.doAction(World.A_MOVE);
+        }*/
+
         for (String move : moves) {
             w.doAction(move);
+            System.out.println("Moves: " + move);
         }
     }
 

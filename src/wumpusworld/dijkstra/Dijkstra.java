@@ -82,6 +82,7 @@ public class Dijkstra {
                 }
             }
         }
+        res = end.getMoves();
         return res;
     }
 
