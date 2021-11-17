@@ -91,59 +91,39 @@ public class Dijkstra {
         List<String> moves = new ArrayList<>();
         if (dirCurrent == World.DIR_UP) {
             if (move_dir == World.DIR_RIGHT) {
-                System.out.println("I am moving right");
                 moves.add(World.A_TURN_RIGHT);
             } else if (move_dir == World.DIR_LEFT) {
-                System.out.println("I am moving left");
                 moves.add(World.A_TURN_LEFT);
             } else if (move_dir == World.DIR_DOWN) {
-                System.out.println("I am moving down");
                 moves.add(World.A_TURN_LEFT);
                 moves.add(World.A_TURN_LEFT);
-            } else {
-                System.out.println("I am moving up");
             }
         } else if (dirCurrent == World.DIR_RIGHT) {
             if (move_dir == World.DIR_UP) {
                 moves.add(World.A_TURN_LEFT);
-                System.out.println("I am moving up");
             } else if (move_dir == World.DIR_LEFT) {
-                System.out.println("I am moving left");
                 moves.add(World.A_TURN_LEFT);
                 moves.add(World.A_TURN_LEFT);
             } else if (move_dir == World.DIR_DOWN) {
-                System.out.println("I am moving down");
                 moves.add(World.A_TURN_RIGHT);
-            } else {
-                System.out.println("I am moving right");
             }
         } else if (dirCurrent == World.DIR_DOWN) {
             if (move_dir == World.DIR_UP) {
                 moves.add(World.A_TURN_LEFT);
                 moves.add(World.A_TURN_LEFT);
-                System.out.println("I am moving up");
             } else if (move_dir == World.DIR_LEFT) {
-                System.out.println("I am moving left");
                 moves.add(World.A_TURN_RIGHT);
             } else if (move_dir == World.DIR_RIGHT) {
-                System.out.println("I am moving right");
                 moves.add(World.A_TURN_LEFT);
-            } else {
-                System.out.println("I am moving down");
             }
         } else {
             if (move_dir == World.DIR_UP) {
                 moves.add(World.A_TURN_RIGHT);
-                System.out.println("I am moving up");
             } else if (move_dir == World.DIR_RIGHT) {
-                System.out.println("I am moving right");
                 moves.add(World.A_TURN_LEFT);
                 moves.add(World.A_TURN_LEFT);
             } else if (move_dir == World.DIR_DOWN) {
-                System.out.println("I am moving down");
                 moves.add(World.A_TURN_LEFT);
-            } else {
-                System.out.println("I am moving left");
             }
         }
         moves.add(World.A_MOVE);

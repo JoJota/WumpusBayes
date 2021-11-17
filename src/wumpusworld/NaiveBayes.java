@@ -20,23 +20,21 @@ public class NaiveBayes {
     public void calcMove() {
         BoardProbabilities.Init();
         addNewDirections();
-        BoardProbabilities.CalculateNewProbabilities(w);
+        BoardProbabilities.calculateNewProbabilities(w);
         Point newPosition = BoardProbabilities.GetNextPosition();
-
-
 
         List<String> moves = Dijkstra.GetShortestPath(w, newPosition);
 
         System.out.println("Moving to point(x={" + newPosition.x + "}|y={" + newPosition.y + "}");
 
-        /*if (moves.size() == 0) {
+        /* if (moves.size() == 0) {
             System.out.println("Moves is empty");
             w.doAction(World.A_MOVE);
-        }*/
+        } */
 
         for (String move : moves) {
             w.doAction(move);
-            System.out.println("Moves: " + move);
+            // System.out.println("Moves: " + move);
         }
     }
 
@@ -64,7 +62,7 @@ public class NaiveBayes {
 
     private void addBorder(Direction dir) {
         if (w.isUnknown(dir.x + 1, dir.y + 1) && w.isValidPosition(dir.x + 1, dir.y + 1)) {
-            BoardProbabilities.AddPointToFrontier(dir.x, dir.y);
+            BoardProbabilities.addPointToFrontier(dir.x, dir.y);
         }
     }
 }
