@@ -69,8 +69,8 @@ public class BoardProbabilities {
         printPitProbabilities();
         //System.out.println("Wumpus Prob");
         //printWumpusProbabilities();
-        System.out.println("Danger Prob");
-        printDangerProbabilities();
+        //System.out.println("Danger Prob");
+        //printDangerProbabilities();
     }
 
     private static void printPitProbabilities() {
@@ -125,24 +125,30 @@ public class BoardProbabilities {
     }
 
     private static double calculateNewPitProb(Point point) {
+        System.out.println("CalculatePitProb for point: " + point.x + "/" + point.y + " ");
         List<Point> newFrontier = new ArrayList<>(_frontier);
         newFrontier.remove(point);
+        System.out.println("Pit");
         setPitFrontierValues(Arrays.copyOf(_boardProbabilities, _boardProbabilities.length), newFrontier, new ArrayList<>(), new ArrayList<>());
         double sum_pit = _pitFrontierValues.stream().mapToDouble(f -> f).sum();
 
         List<Point> pits = new ArrayList<>();
         pits.add(point);
         _pitFrontierValues.clear();
+        System.out.println("NoPit");
         setPitFrontierValues(Arrays.copyOf(_boardProbabilities, _boardProbabilities.length), newFrontier, new ArrayList<>(), pits);
         double sum_noPit = _pitFrontierValues.stream().mapToDouble(f -> f).sum();
 
         double pitValue = sum_pit * _pitProbability;
         double noPitValue = sum_noPit * (1 - _pitProbability);
         double alpha = pitValue / noPitValue;
+        System.out.println("pitValue: " + pitValue + ", noPitValue: " + noPitValue + " alpha: " + alpha);
 
         _pitFrontierValues.clear();
         return pitValue * alpha;
     }
+
+    private static String prefix = "";
 
     private static void setPitFrontierValues(FieldPropability[][] pip_probability, List<Point> frontier, List<Double> probabilities, List<Point> pits) {
         if (frontier.isEmpty()) {
@@ -159,10 +165,15 @@ public class BoardProbabilities {
         }
 
         Point point = frontier.get(0);
+        System.out.print(prefix + "Point " + point.x + "/" + point.y + " ");
+        // Does the field has a breeze around it
         if (breezeAround(point)) {
-            System.out.println("breezeAround (" + point.x + ", " + point.y + "):" + breezeAround(point));
+            System.out.print("has a breeze around and ");
+            //System.out.println("breezeAround (" + point.x + ", " + point.y + "):" + breezeAround(point));
+            // Field has breeze around and is a pit with certainty
             if (hasToBePit(point, pits)) {
-                System.out.println("hasToBePit (" + point.x + ", " + point.y + "):" + hasToBePit(point, pits));
+                System.out.print("is certainly a pit\n");
+                //System.out.println("hasToBePit (" + point.x + ", " + point.y + "):" + hasToBePit(point, pits));
                 List<Point> newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
                 List<Double> newProbabilities = new ArrayList<>(probabilities);
@@ -170,8 +181,11 @@ public class BoardProbabilities {
                 FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
                 new_pit_probability[point.y][point.x].setPit_prob(1);
 
+                prefix = prefix.concat(" ");
                 setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
+            // Field has breeze around it and might be a pit
             } else {
+                System.out.print("could be a pit\n");
                 List<Point> newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
                 List<Double> newProbabilities = new ArrayList<>(probabilities);
@@ -179,6 +193,7 @@ public class BoardProbabilities {
                 FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
                 new_pit_probability[point.y][point.x].setPit_prob(1);
 
+                prefix = prefix.concat(" ");
                 setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
 
                 newFrontier = new ArrayList<>(frontier);
@@ -188,9 +203,12 @@ public class BoardProbabilities {
                 new_pit_probability = deepCopy(pip_probability);
                 new_pit_probability[point.y][point.x].setPit_prob(0);
 
+                prefix = prefix.concat(" ");
                 setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
             }
+        // Field is not a pit
         } else {
+            System.out.print("is not a pit\n");
             List<Point> newFrontier = new ArrayList<>(frontier);
             newFrontier.remove(point);
             List<Double> newProbabilities = new ArrayList<>(probabilities);
@@ -198,8 +216,11 @@ public class BoardProbabilities {
             FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
             new_pit_probability[point.y][point.x].setPit_prob(0);
 
+            prefix = prefix.concat(" ");
             setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
         }
+        //System.out.println("");
+        prefix = "";
     }
 
     private static boolean breezeAround(Point point) {
