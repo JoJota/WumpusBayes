@@ -2,11 +2,11 @@ package wumpusworld;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class BoardProbabilities {
     private static FieldPropability[][] _boardProbabilities = null;
+    private static FieldPropability[][] _calcProbabilities = null;
     private static List<Point> _frontier;
     private final static double _pitProbability = (3.0 / 15);
     private final static double _wumpusProbability = (1.0 / 15);
@@ -125,18 +125,31 @@ public class BoardProbabilities {
     }
 
     private static double calculateNewPitProb(Point point) {
-        System.out.println("CalculatePitProb for point: " + point.x + "/" + point.y + " ");
+        System.out.println("\nCalculatePitProb for point: " + point.x + "/" + point.y + " ");
         List<Point> newFrontier = new ArrayList<>(_frontier);
         newFrontier.remove(point);
         System.out.println("Pit");
-        setPitFrontierValues(Arrays.copyOf(_boardProbabilities, _boardProbabilities.length), newFrontier, new ArrayList<>(), new ArrayList<>());
+
+        _calcProbabilities = deepCopy(_boardProbabilities);
+        for (int i = _calcProbabilities.length - 1; i >= 0; i--) {
+            for (int j = 0; j < _calcProbabilities[0].length; j++) {
+                if (_calcProbabilities[i][j].getPit_prob() != 0 && _calcProbabilities[i][j].getPit_prob() != 1) {
+                    _calcProbabilities[i][j].setPit_prob(0.2);
+                    _calcProbabilities[i][j].setDanger_prob(0.2);
+                }
+            }
+        }
+
+        _calcProbabilities[point.y][point.x].setPit_prob(1);
+
+        setPitFrontierValues(deepCopy(_calcProbabilities), newFrontier, new ArrayList<>(), new ArrayList<>());
         double sum_pit = _pitFrontierValues.stream().mapToDouble(f -> f).sum();
 
         List<Point> pits = new ArrayList<>();
         pits.add(point);
         _pitFrontierValues.clear();
         System.out.println("NoPit");
-        setPitFrontierValues(Arrays.copyOf(_boardProbabilities, _boardProbabilities.length), newFrontier, new ArrayList<>(), pits);
+        setPitFrontierValues(deepCopy(_calcProbabilities), newFrontier, new ArrayList<>(), pits);
         double sum_noPit = _pitFrontierValues.stream().mapToDouble(f -> f).sum();
 
         double pitValue = sum_pit * _pitProbability;
@@ -161,6 +174,8 @@ public class BoardProbabilities {
                 }
             }
             _pitFrontierValues.add(res);
+            System.out.println(prefix + "FrontierVals: " + _pitFrontierValues);
+            prefix = prefix.substring(0, prefix.length() - 1);
             return;
         }
 
@@ -171,7 +186,7 @@ public class BoardProbabilities {
             System.out.print("has a breeze around and ");
             //System.out.println("breezeAround (" + point.x + ", " + point.y + "):" + breezeAround(point));
             // Field has breeze around and is a pit with certainty
-            if (hasToBePit(point, pits)) {
+            if (hasToBePit(point, pits, pip_probability)) {
                 System.out.print("is certainly a pit\n");
                 //System.out.println("hasToBePit (" + point.x + ", " + point.y + "):" + hasToBePit(point, pits));
                 List<Point> newFrontier = new ArrayList<>(frontier);
@@ -189,9 +204,13 @@ public class BoardProbabilities {
                 List<Point> newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
                 List<Double> newProbabilities = new ArrayList<>(probabilities);
-                newProbabilities.add(_boardProbabilities[point.y][point.x].getPit_prob());
+                newProbabilities.add(_calcProbabilities[point.y][point.x].getPit_prob());
                 FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
                 new_pit_probability[point.y][point.x].setPit_prob(1);
+
+                System.out.println(prefix + "Assume that " + point.x + "/" + point.y + " is a pit");
+                //@TODO stimmt das?
+                //pits.add(point);
 
                 prefix = prefix.concat(" ");
                 setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
@@ -199,10 +218,11 @@ public class BoardProbabilities {
                 newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
                 newProbabilities = new ArrayList<>(probabilities);
-                newProbabilities.add(1 - _boardProbabilities[point.y][point.x].getPit_prob());
+                newProbabilities.add(1 - _calcProbabilities[point.y][point.x].getPit_prob());
                 new_pit_probability = deepCopy(pip_probability);
                 new_pit_probability[point.y][point.x].setPit_prob(0);
 
+                System.out.println(prefix + "Assume that " + point.x + "/" + point.y + " is not a pit");
                 prefix = prefix.concat(" ");
                 setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
             }
@@ -212,7 +232,7 @@ public class BoardProbabilities {
             List<Point> newFrontier = new ArrayList<>(frontier);
             newFrontier.remove(point);
             List<Double> newProbabilities = new ArrayList<>(probabilities);
-            _boardProbabilities[point.y][point.x].setPit_prob(0.0);
+            _calcProbabilities[point.y][point.x].setPit_prob(0.0);
             FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
             new_pit_probability[point.y][point.x].setPit_prob(0);
 
@@ -233,30 +253,59 @@ public class BoardProbabilities {
         return false;
     }
 
-    private static boolean hasToBePit(Point point, List<Point> pits) {
-        for (Point p : getNeighbors(point)) {
-            if (_world.hasBreeze(p.x + 1, p.y + 1)) {
-                boolean res = true;
-                for (Point q : getNeighbors(p)) {
-                    if (!_world.isVisited(q.x + 1, q.y + 1) && q.x != point.x && q.y != point.y) {
-                        res = false;
-                        break;
+    /*private static boolean hasToBePit(Point point, List<Point> pits, FieldPropability[][] pip_probability){
+        if (breezeAround(point)) {
+            for (Point p : getNeighbors(point)) {
+                if (_world.hasBreeze(p.x + 1, p.y + 1)) {
+                    boolean res = true;
+                    for (Point q : getNeighbors(p)) {
+                        if (!_world.isVisited(q.x + 1, q.y + 1)) {
+                            res = false;
+                            break;
+                        }
+                        if (!_world.hasPit(q.x + 1, q.y + 1) && pip_probability[q.y][q.x].getPit_prob() != 1) {
+                            res = false;
+                            break;
+                        }
+                        if (!pits.contains(q)) {
+                            res = false;
+                            break;
+                        }
                     }
-                    if (_world.hasPit(q.x + 1, q.y + 1)) {
-                        res = false;
-                        break;
-                    }
-                    if (pits.contains(q)) {
-                        res = false;
-                        break;
+                    if (res) {
+                        return true;
                     }
                 }
-                if (res) {
+            }
+        }
+        return false;
+    }*/
+
+    private static boolean hasToBePit(Point point, List<Point> pits, FieldPropability[][] pip_probability) {
+        for (Point p : getVisitedNeighbors(point)) {
+            if (_world.hasBreeze(p.x+1, p.y+1)) {
+                List<Point> pitPossibilities = new ArrayList<>();
+                for (Point q : getNeighbors(p)) {
+                    if (_world.hasPit(q.x + 1, q.y + 1) || pip_probability[q.y][q.x].getPit_prob() == 1) {
+                        pitPossibilities.clear();
+                        break;
+                    }
+                    if (!_world.isVisited(q.x + 1, q.y + 1) && pip_probability[q.y][q.x].getPit_prob() == 0.2) {
+                        pitPossibilities.add(q);
+                    }
+                }
+                if (pitPossibilities.contains(point) && pitPossibilities.size() == 1) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    private static List<Point> getVisitedNeighbors(Point point) {
+        List<Point> neighborsvisited = getNeighbors(point);
+        neighborsvisited.removeIf(n -> !_world.isVisited(n.x + 1, n.y + 1));
+        return neighborsvisited;
     }
 
     private static List<Point> getNeighbors(Point point) {
