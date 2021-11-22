@@ -11,6 +11,7 @@ public class BoardProbabilities {
     private final static double _pitProbability = (3.0 / 15);
     private final static double _wumpusProbability = (1.0 / 15);
     private static List<Double> _pitFrontierValues;
+    private static List<Double> _WumpusFrontierValues;
     private static World _world;
     private static DecimalFormat df;
 
@@ -23,11 +24,12 @@ public class BoardProbabilities {
         if (_boardProbabilities == null) {
             initBoard();
             _pitFrontierValues = new ArrayList<>();
+            _WumpusFrontierValues = new ArrayList<>();
             _frontier = new ArrayList<>();
         }
         df = new DecimalFormat("###.##");
-        df.setMinimumFractionDigits(2);
-        df.setMaximumFractionDigits(2);
+        df.setMinimumFractionDigits(5);
+        df.setMaximumFractionDigits(5);
     }
 
     private static void initBoard() {
@@ -55,10 +57,13 @@ public class BoardProbabilities {
     public static void calculateNewProbabilities(World world) {
         _world = world;
         for (Point point : _frontier) {
-            double w_prob = calculateNewWumpusProb(point);
+            double w_prob = 0;
             double p_prob = 0;
             if (breezeAround(point)) {
                 p_prob = calculateNewPitProb(point);
+            }
+            if (stenchAround(point)) {
+                w_prob = calculateNewWumpusProb(point);
             }
 
             FieldPropability fieldPropability = new FieldPropability(w_prob, p_prob);
@@ -67,10 +72,10 @@ public class BoardProbabilities {
 
         System.out.println("Pit Prob");
         printPitProbabilities();
-        //System.out.println("Wumpus Prob");
-        //printWumpusProbabilities();
-        //System.out.println("Danger Prob");
-        //printDangerProbabilities();
+        System.out.println("Wumpus Prob");
+        printWumpusProbabilities();
+        System.out.println("Danger Prob");
+        printDangerProbabilities();
     }
 
     private static void printPitProbabilities() {
@@ -119,9 +124,46 @@ public class BoardProbabilities {
     }
 
     private static double calculateNewWumpusProb(Point point) {
-        // TODO
-        double sum = 0;
-        return sum * (1.0 / 15); //1/15 = wumpus probability
+        // TODO wumpus probability ist kleiner bei stench in der nähe als normal (map 4)
+        // TODO calculateNewWumpusProb methode umschreiben, sodass er nur von einem wumpus ausgeht -> ES GIBT NUR EINEN WUMPUS (map 1)
+        // TODO Wumpus tot machen
+        //double sum = 0;
+        //return sum * (1.0 / 15); //1/15 = wumpus probability
+
+        System.out.println("\nCalculateWumpusProb for point: " + point.x + "/" + point.y + " ");
+        List<Point> newFrontier = new ArrayList<>(_frontier);
+        newFrontier.remove(point);
+        System.out.println("Wumpus");
+
+        _calcProbabilities = deepCopy(_boardProbabilities);
+        for (int i = _calcProbabilities.length - 1; i >= 0; i--) {
+            for (int j = 0; j < _calcProbabilities[0].length; j++) {
+                if (_calcProbabilities[i][j].getWumpus_prob() != 0 && _calcProbabilities[i][j].getWumpus_prob() != 1) {
+                    _calcProbabilities[i][j].setWumpus_prob(_wumpusProbability);
+                    //_calcProbabilities[i][j].setDanger_prob(_wumpusProbability);
+                }
+            }
+        }
+
+        _calcProbabilities[point.y][point.x].setWumpus_prob(1);
+
+        setWumpusFrontierValues(deepCopy(_calcProbabilities), newFrontier, new ArrayList<>(), new ArrayList<>());
+        double sum_Wumpus = _WumpusFrontierValues.stream().mapToDouble(f -> f).sum();
+
+        List<Point> wumpus = new ArrayList<>();
+        wumpus.add(point);
+        _WumpusFrontierValues.clear();
+        System.out.println("NoWumpus");
+        setWumpusFrontierValues(deepCopy(_calcProbabilities), newFrontier, new ArrayList<>(), wumpus);
+        double sum_noWumpus = _WumpusFrontierValues.stream().mapToDouble(f -> f).sum();
+
+        double wumpusValue = sum_Wumpus * _wumpusProbability;
+        double noWumpusValue = sum_noWumpus * (1 - _wumpusProbability);
+        double alpha = wumpusValue / noWumpusValue;
+        System.out.println("WumpusValue: " + wumpusValue + ", noWumpusValue: " + noWumpusValue + " alpha: " + alpha);
+
+        _WumpusFrontierValues.clear();
+        return wumpusValue * alpha;
     }
 
     private static double calculateNewPitProb(Point point) {
@@ -134,8 +176,8 @@ public class BoardProbabilities {
         for (int i = _calcProbabilities.length - 1; i >= 0; i--) {
             for (int j = 0; j < _calcProbabilities[0].length; j++) {
                 if (_calcProbabilities[i][j].getPit_prob() != 0 && _calcProbabilities[i][j].getPit_prob() != 1) {
-                    _calcProbabilities[i][j].setPit_prob(0.2);
-                    _calcProbabilities[i][j].setDanger_prob(0.2);
+                    _calcProbabilities[i][j].setPit_prob(_pitProbability);
+                    //_calcProbabilities[i][j].setDanger_prob(_pitProbability);
                 }
             }
         }
@@ -162,6 +204,7 @@ public class BoardProbabilities {
     }
 
     private static String prefix = "";
+    private static String prefix2 = "";
 
     private static void setPitFrontierValues(FieldPropability[][] pip_probability, List<Point> frontier, List<Double> probabilities, List<Point> pits) {
         if (frontier.isEmpty()) {
@@ -241,6 +284,84 @@ public class BoardProbabilities {
         prefix = "";
     }
 
+    private static void setWumpusFrontierValues(FieldPropability[][] pip_probability, List<Point> frontier, List<Double> probabilities, List<Point> Wumpuss) {
+        if (frontier.isEmpty()) {
+            double res = 1;
+            if (probabilities.isEmpty()) {
+                res = 0;
+            } else {
+                for (Double d : probabilities) {
+                    res *= d;
+                }
+            }
+            _WumpusFrontierValues.add(res);
+            System.out.println(prefix2 + "FrontierVals: " + _WumpusFrontierValues);
+            prefix2 = prefix2.substring(0, prefix2.length() - 1);
+            return;
+        }
+
+        Point point = frontier.get(0);
+        System.out.print(prefix2 + "Point " + point.x + "/" + point.y + " ");
+        // Does the field has a breeze around it
+        if (stenchAround(point)) {
+            System.out.print("has a stench around and ");
+            //System.out.println("breezeAround (" + point.x + ", " + point.y + "):" + breezeAround(point));
+            // Field has stench around and is a Wumpus with certainty
+            if (hasToBeWumpus(point, Wumpuss, pip_probability)) {
+                System.out.print("is certainly a Wumpus\n");
+                //System.out.println("hasToBeWumpus (" + point.x + ", " + point.y + "):" + hasToBeWumpus(point, Wumpuss));
+                List<Point> newFrontier = new ArrayList<>(frontier);
+                newFrontier.remove(point);
+                List<Double> newProbabilities = new ArrayList<>(probabilities);
+                newProbabilities.add(1.0);
+                FieldPropability[][] new_Wumpus_probability = deepCopy(pip_probability);
+                new_Wumpus_probability[point.y][point.x].setWumpus_prob(1);
+
+                prefix2 = prefix2.concat(" ");
+                setWumpusFrontierValues(new_Wumpus_probability, newFrontier, newProbabilities, Wumpuss);
+                // Field has breeze around it and might be a Wumpus
+            } else {
+                System.out.print("could be a Wumpus\n");
+                List<Point> newFrontier = new ArrayList<>(frontier);
+                newFrontier.remove(point);
+                List<Double> newProbabilities = new ArrayList<>(probabilities);
+                newProbabilities.add(_calcProbabilities[point.y][point.x].getWumpus_prob());
+                FieldPropability[][] new_Wumpus_probability = deepCopy(pip_probability);
+                new_Wumpus_probability[point.y][point.x].setWumpus_prob(1);
+
+                System.out.println(prefix2 + "Assume that " + point.x + "/" + point.y + " is a Wumpus");
+
+                prefix2 = prefix2.concat(" ");
+                setWumpusFrontierValues(new_Wumpus_probability, newFrontier, newProbabilities, Wumpuss);
+
+                newFrontier = new ArrayList<>(frontier);
+                newFrontier.remove(point);
+                newProbabilities = new ArrayList<>(probabilities);
+                newProbabilities.add(1 - _calcProbabilities[point.y][point.x].getWumpus_prob());
+                new_Wumpus_probability = deepCopy(pip_probability);
+                new_Wumpus_probability[point.y][point.x].setWumpus_prob(0);
+
+                System.out.println(prefix2 + "Assume that " + point.x + "/" + point.y + " is not a Wumpus");
+                prefix2 = prefix2.concat(" ");
+                setWumpusFrontierValues(new_Wumpus_probability, newFrontier, newProbabilities, Wumpuss);
+            }
+            // Field is not a Wumpus
+        } else {
+            System.out.print("is not a Wumpus\n");
+            List<Point> newFrontier = new ArrayList<>(frontier);
+            newFrontier.remove(point);
+            List<Double> newProbabilities = new ArrayList<>(probabilities);
+            _calcProbabilities[point.y][point.x].setWumpus_prob(0.0);
+            FieldPropability[][] new_Wumpus_probability = deepCopy(pip_probability);
+            new_Wumpus_probability[point.y][point.x].setWumpus_prob(0);
+
+            prefix2 = prefix2.concat(" ");
+            setWumpusFrontierValues(new_Wumpus_probability, newFrontier, newProbabilities, Wumpuss);
+        }
+        //System.out.println("");
+        prefix2 = "";
+    }
+    
     private static boolean breezeAround(Point point) {
         List<Point> neighbors = getNeighbors(point);
         for (Point p : neighbors) {
@@ -251,33 +372,15 @@ public class BoardProbabilities {
         return false;
     }
 
-    /*private static boolean hasToBePit(Point point, List<Point> pits, FieldPropability[][] pip_probability){
-        if (breezeAround(point)) {
-            for (Point p : getNeighbors(point)) {
-                if (_world.hasBreeze(p.x + 1, p.y + 1)) {
-                    boolean res = true;
-                    for (Point q : getNeighbors(p)) {
-                        if (!_world.isVisited(q.x + 1, q.y + 1)) {
-                            res = false;
-                            break;
-                        }
-                        if (!_world.hasPit(q.x + 1, q.y + 1) && pip_probability[q.y][q.x].getPit_prob() != 1) {
-                            res = false;
-                            break;
-                        }
-                        if (!pits.contains(q)) {
-                            res = false;
-                            break;
-                        }
-                    }
-                    if (res) {
-                        return true;
-                    }
-                }
+    private static boolean stenchAround(Point point) {
+        List<Point> neighbors = getNeighbors(point);
+        for (Point p : neighbors) {
+            if (_world.hasStench(p.x + 1, p.y + 1)) {
+                return true;
             }
         }
         return false;
-    }*/
+    }
 
     private static boolean hasToBePit(Point point, List<Point> pits, FieldPropability[][] pip_probability) {
         for (Point p : getVisitedNeighbors(point)) {
@@ -293,6 +396,27 @@ public class BoardProbabilities {
                     }
                 }
                 if (pitPossibilities.contains(point) && pitPossibilities.size() == 1) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasToBeWumpus(Point point, List<Point> wumpuss, FieldPropability[][] pip_probability) {
+        for (Point p : getVisitedNeighbors(point)) {
+            if (_world.hasStench(p.x+1, p.y+1)) {
+                List<Point> wumpusPossibilities = new ArrayList<>();
+                for (Point q : getNeighbors(p)) {
+                    if (_world.hasWumpus(q.x + 1, q.y + 1) || pip_probability[q.y][q.x].getWumpus_prob() == 1) {
+                        wumpusPossibilities.clear();
+                        break;
+                    }
+                    if (!_world.isVisited(q.x + 1, q.y + 1) && pip_probability[q.y][q.x].getWumpus_prob() == 0.2) {
+                        wumpusPossibilities.add(q);
+                    }
+                }
+                if (wumpusPossibilities.contains(point) && wumpusPossibilities.size() == 1) {
                     return true;
                 }
             }
