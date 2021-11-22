@@ -209,8 +209,6 @@ public class BoardProbabilities {
                 new_pit_probability[point.y][point.x].setPit_prob(1);
 
                 System.out.println(prefix + "Assume that " + point.x + "/" + point.y + " is a pit");
-                //@TODO stimmt das?
-                //pits.add(point);
 
                 prefix = prefix.concat(" ");
                 setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
