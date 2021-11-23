@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/WumpusBayes.iml" filepath="$PROJECT_DIR$/WumpusBayes.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WumpusWorld.iml" filepath="$PROJECT_DIR$/WumpusWorld.iml" />
     </modules>
   </component>
 </project>
