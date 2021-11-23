@@ -18,9 +18,9 @@ public class NaiveBayes {
     }
 
     public void calcMove() {
-        BoardProbabilities.Init();
+        BoardProbabilities.Init(w);
         addNewDirections();
-        BoardProbabilities.calculateNewProbabilities(w);
+        BoardProbabilities.calculateNewProbabilities();
 
         Point wumpus_point = BoardProbabilities.testWumpusShooting();
 
