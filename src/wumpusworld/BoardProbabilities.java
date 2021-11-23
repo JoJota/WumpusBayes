@@ -175,8 +175,7 @@ public class BoardProbabilities {
         return pitValue * alpha;
     }
 
-    private static String prefix = "";
-    private static String prefix2 = "";
+    //private static String prefix = "";
 
     private static void setPitFrontierValues(FieldPropability[][] pip_probability, List<Point> frontier, List<Double> probabilities, List<Point> pits) {
         if (frontier.isEmpty()) {
@@ -190,7 +189,7 @@ public class BoardProbabilities {
             }
             _pitFrontierValues.add(res);
             //System.out.println(prefix + "FrontierVals: " + _pitFrontierValues);
-            prefix = prefix.substring(0, prefix.length() - 1);
+            //prefix = prefix.substring(0, prefix.length() - 1);
             return;
         }
 
@@ -211,7 +210,7 @@ public class BoardProbabilities {
                 FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
                 new_pit_probability[point.y][point.x].setPit_prob(1);
 
-                prefix = prefix.concat(" ");
+                //prefix = prefix.concat(" ");
                 setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
                 // Field has breeze around it and might be a pit
             } else {
@@ -225,7 +224,7 @@ public class BoardProbabilities {
 
                 //System.out.println(prefix + "Assume that " + point.x + "/" + point.y + " is a pit");
 
-                prefix = prefix.concat(" ");
+                //prefix = prefix.concat(" ");
                 setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
 
                 newFrontier = new ArrayList<>(frontier);
@@ -236,7 +235,7 @@ public class BoardProbabilities {
                 new_pit_probability[point.y][point.x].setPit_prob(0);
 
                 //System.out.println(prefix + "Assume that " + point.x + "/" + point.y + " is not a pit");
-                prefix = prefix.concat(" ");
+                //prefix = prefix.concat(" ");
                 setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
             }
             // Field is not a pit
@@ -249,11 +248,11 @@ public class BoardProbabilities {
             FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
             new_pit_probability[point.y][point.x].setPit_prob(0);
 
-            prefix = prefix.concat(" ");
+            //prefix = prefix.concat(" ");
             setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
         }
         //System.out.println("");
-        prefix = "";
+        //prefix = "";
     }
 
     private static void setWumpusFrontierValues() {
@@ -425,7 +424,7 @@ public class BoardProbabilities {
         for (int i=0; i < _boardProbabilities.length; i++) {
             for (int k=0; k < _boardProbabilities.length; k++) {
                 if (_boardProbabilities[i][k].getWumpus_prob() == 1) {
-                    return new Point(k,i);
+                    return new Point(k + 1, i + 1);
                 }
             }
         }

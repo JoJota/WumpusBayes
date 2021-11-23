@@ -12,9 +12,7 @@ public class Dijkstra {
 
     public static List<String> GetShortestPath(World world, Point point) {
 
-        List<String> res = new ArrayList<>();
-
-        Set<DijkstraPoint> visited = new HashSet<>();
+        List<String> res;
         Set<DijkstraPoint> unvisited = new HashSet<>();
 
         DijkstraPoint start = new DijkstraPoint(world.getPlayerX(), world.getPlayerY(), 0, null, world.getDirection());
@@ -35,7 +33,6 @@ public class Dijkstra {
         while (unvisited.size() != 0) {
             DijkstraPoint currentPoint = getLowestCostPoint(unvisited);
             unvisited.remove(currentPoint);
-            visited.add(currentPoint);
             if (currentPoint == end) break;
             //find neighbours and update their cost and the previous Point
             for (DijkstraPoint dijkstraPoint : unvisited) {

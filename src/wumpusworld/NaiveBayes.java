@@ -33,6 +33,7 @@ public class NaiveBayes {
             w.doAction(World.A_SHOOT);
             if (!w.wumpusAlive()) {
                 System.out.println("WUMPUS IS DEAD");
+                return;
             }
         }
 
