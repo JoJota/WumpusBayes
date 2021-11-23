@@ -30,10 +30,15 @@ public class NaiveBayes {
             for (String move : moves) {
                 w.doAction(move);
             }
+            GUI.AppendToTextArea("Shooting arrow at point (x=" + wumpus_point.x + "|y=" + wumpus_point.y + ")");
             w.doAction(World.A_SHOOT);
             if (!w.wumpusAlive()) {
                 System.out.println("WUMPUS IS DEAD");
+                GUI.AppendToTextArea("You killed the Wumpus!");
                 return;
+            }
+            else {
+                GUI.AppendToTextArea("You missed the Wumpus :(");
             }
         }
 
@@ -41,6 +46,7 @@ public class NaiveBayes {
 
         List<String> moves = Dijkstra.GetShortestPath(w, newPosition);
 
+        GUI.AppendToTextArea("Moving from point (x=" + w.getPlayerX() + "|y=" + w.getPlayerY() + ") to point(x=" + newPosition.x + "|y=" + newPosition.y + ")");
         System.out.println("Moving to point(x={" + newPosition.x + "}|y={" + newPosition.y + "}");
 
         /* if (moves.size() == 0) {

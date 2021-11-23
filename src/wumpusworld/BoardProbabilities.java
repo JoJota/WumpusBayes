@@ -31,6 +31,8 @@ public class BoardProbabilities {
         df = new DecimalFormat("#.##");
         //df.setMinimumFractionDigits(3);
         //df.setMaximumFractionDigits(3);
+
+        GUI.SetBoardProbabilities(_boardProbabilities);
     }
 
     private static void initBoard() {
@@ -96,6 +98,8 @@ public class BoardProbabilities {
         printWumpusProbabilities();
         System.out.println("Danger Prob");
         printDangerProbabilities();
+
+        GUI.SetBoardProbabilities(_boardProbabilities);
     }
 
     private static void printPitProbabilities() {

@@ -1,9 +1,12 @@
 package wumpusworld;
 
 import javax.swing.*;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 import java.awt.event.*;
 import java.awt.*;
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.Vector;
 
 /**
@@ -23,6 +26,8 @@ public class GUI implements ActionListener
     private JPanel[][] blocks;
     private JComboBox mapList;
     private Vector<WorldMap> maps;
+    private static JTextArea display;
+    private static FieldPropability[][] boardProbabilities;
     
     private ImageIcon l_breeze;
     private ImageIcon l_stench;
@@ -200,11 +205,36 @@ public class GUI implements ActionListener
         buttons.add(bn);
         
         frame.getContentPane().add(buttons);
+
+        JPanel textArea = getTextAreaPanel();
+        frame.getContentPane().add(textArea);
         
         updateGame();
         
         //Show window
         frame.setVisible(true);
+    }
+
+    private JPanel getTextAreaPanel() {
+        JPanel res = new JPanel ();
+        res.setBorder ( new TitledBorder( new EtchedBorder(), "Display Area" ) );
+
+        // create the middle panel components
+
+        display = new JTextArea ( 16, 58 );
+        display.setEditable ( false ); // set textArea non-editable
+        JScrollPane scroll = new JScrollPane ( display );
+        scroll.setVerticalScrollBarPolicy ( ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS );
+
+        //Add Textarea in to middle panel
+        res.add ( scroll );
+        res.setAutoscrolls(true);
+
+        return res;
+    }
+
+    public static void AppendToTextArea(String line) {
+        display.append(line + "\n");
     }
     
     /**
@@ -313,6 +343,8 @@ public class GUI implements ActionListener
                 {
                     blocks[i][j].setBackground(Color.GRAY);
                 }
+
+                showBoardProbabilities(i, j);
                 
                 blocks[i][j].updateUI();
                 blocks[i][j].repaint();
@@ -332,5 +364,38 @@ public class GUI implements ActionListener
         
         gamepanel.updateUI();
         gamepanel.repaint();
-    }  
+    }
+
+    private void showBoardProbabilities(int i, int j) {
+        if (boardProbabilities == null) {
+            return;
+        }
+
+        JPanel probPanel = new JPanel();
+        probPanel.setPreferredSize(new Dimension(20,30));
+        probPanel.setBackground(Color.WHITE);
+        probPanel.setLayout(new GridLayout(3,1));
+
+        double wumpusProb = boardProbabilities[i][j].getWumpus_prob();
+        double pitProb = boardProbabilities[i][j].getPit_prob();
+        double dangerProb = boardProbabilities[i][j].getDanger_prob();
+
+        DecimalFormat df = new DecimalFormat("#.##");
+        JLabel wLabel = new JLabel("w: " + df.format(wumpusProb));
+        wLabel.setFont(new Font("Serif", Font.PLAIN, 10));
+        JLabel pLabel = new JLabel("p: " + df.format(pitProb));
+        pLabel.setFont(new Font("Serif", Font.PLAIN, 10));
+        JLabel dLabel = new JLabel("d: " + df.format(dangerProb));
+        dLabel.setFont(new Font("Serif", Font.PLAIN, 10));
+
+        probPanel.add(wLabel);
+        probPanel.add(pLabel);
+        probPanel.add(dLabel);
+
+        blocks[i][j].add(probPanel, BorderLayout.PAGE_END);
+    }
+
+    public static void SetBoardProbabilities(FieldPropability[][] board) {
+        boardProbabilities = board;
+    }
 }

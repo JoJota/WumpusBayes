@@ -490,6 +490,10 @@ public class World
                 score += 1000;
                 hasGold = true;
                 gameOver = true;
+
+                GUI.AppendToTextArea("You fount the Gold !!!");
+                GUI.AppendToTextArea("Congratulations, you finished this level with a score of " + score);
+
                 return true;
             }
         }
