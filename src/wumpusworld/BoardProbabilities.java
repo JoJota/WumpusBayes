@@ -65,7 +65,15 @@ public class BoardProbabilities {
             _boardProbabilities[point.y][point.x] = fieldPropability;
         }
 
-        calculateNewWumpusProb();
+        if (_world.wumpusAlive()) {
+            calculateNewWumpusProb();
+        } else {
+            for (int x = 0; x < _boardProbabilities.length; x++) {
+                for (int y = 0; y < _boardProbabilities.length; y++) {
+                    _boardProbabilities[y][x].setWumpus_prob(0);
+                }
+            }
+        }
 
         System.out.println("Pit Prob");
         printPitProbabilities();
@@ -413,5 +421,14 @@ public class BoardProbabilities {
         return result;
     }
 
-
+    public static Point testWumpusShooting() {
+        for (int i=0; i < _boardProbabilities.length; i++) {
+            for (int k=0; k < _boardProbabilities.length; k++) {
+                if (_boardProbabilities[i][k].getWumpus_prob() == 1) {
+                    return new Point(k,i);
+                }
+            }
+        }
+        return null;
+    }
 }

@@ -21,6 +21,21 @@ public class NaiveBayes {
         BoardProbabilities.Init();
         addNewDirections();
         BoardProbabilities.calculateNewProbabilities(w);
+
+        Point wumpus_point = BoardProbabilities.testWumpusShooting();
+
+        if (wumpus_point != null && w.hasArrow()) {
+            List<String> moves = Dijkstra.GetShortestPath(w, wumpus_point);
+            moves.remove(moves.size() - 1);
+            for (String move : moves) {
+                w.doAction(move);
+            }
+            w.doAction(World.A_SHOOT);
+            if (!w.wumpusAlive()) {
+                System.out.println("WUMPUS IS DEAD");
+            }
+        }
+
         Point newPosition = BoardProbabilities.GetNextPosition();
 
         List<String> moves = Dijkstra.GetShortestPath(w, newPosition);
