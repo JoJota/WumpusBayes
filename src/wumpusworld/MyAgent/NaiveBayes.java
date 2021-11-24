@@ -183,7 +183,7 @@ public class NaiveBayes {
             if (_world.hasBreeze(p.x + 1, p.y + 1)) {
                 List<Point> pitPossibilities = new ArrayList<>();
                 for (Point q : getNeighbors(p, _world)) {
-                    if (_world.hasPit(q.x + 1, q.y + 1) || pip_probability[q.y][q.x].getPit_prob() == 1) {
+                    if (_world.hasPit(q.x + 1, q.y + 1) || pip_probability[q.x][q.y].getPit_prob() == 1) {
                         pitPossibilities.clear();
                         break;
                     }
