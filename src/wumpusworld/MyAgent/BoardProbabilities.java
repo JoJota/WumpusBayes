@@ -35,6 +35,8 @@ public class BoardProbabilities {
             _frontier = new ArrayList<>();
         }
         df = new DecimalFormat("#.##");
+        WumpusProbability.Init(world);
+        NaiveBayes.Init(world);
         //df.setMinimumFractionDigits(3);
         //df.setMaximumFractionDigits(3);
     }
@@ -113,6 +115,10 @@ public class BoardProbabilities {
     }
 
     public static void set_pitProbability(int X, int Y, double pitProbability) {
+        if (pitProbability != 0 && pitProbability != 1) {
+            int x = 3;
+        }
+
         _boardProbabilities[X][Y].setPit_prob(pitProbability);
     }
 

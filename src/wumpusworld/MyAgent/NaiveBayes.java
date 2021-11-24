@@ -5,6 +5,7 @@ import wumpusworld.dijkstra.Dijkstra;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static wumpusworld.MyAgent.BoardProbabilities._pitProbability;
@@ -69,29 +70,31 @@ public class NaiveBayes {
         newFrontier.remove(point);
         _calcProbabilities = BoardProbabilities.GetDeepCopy();
 
+        System.out.println("Point: " + point);
+
         //get values for point = pit
         _calcProbabilities[point.y][point.x].setPit_prob(1);
         setPitFrontierValues(deepCopy(_calcProbabilities), deepCopy(newFrontier), new ArrayList<>());
         double sum_pit = _pitFrontierValues.stream().mapToDouble(f -> f).sum();
+
+        System.out.println("pit sum:");
+        System.out.println(Arrays.toString(_pitFrontierValues.toArray()));
         _pitFrontierValues.clear();
 
         //get values for point != pit
         _calcProbabilities[point.y][point.x].setPit_prob(0);
         setPitFrontierValues(deepCopy(_calcProbabilities), deepCopy(newFrontier), new ArrayList<>());
         double sum_noPit = _pitFrontierValues.stream().mapToDouble(f -> f).sum();
+        System.out.println("no pit sum:");
+        System.out.println(Arrays.toString(_pitFrontierValues.toArray()));
         _pitFrontierValues.clear();
 
         double pitValue = sum_pit * _pitProbability;
         double noPitValue = sum_noPit * (1 - _pitProbability);
         double alpha = pitValue + noPitValue;
 
-        if (alpha == 0) {
-            int i = 3;
-        }
+        System.out.println("--------------------------------------------");
         double res = pitValue / alpha;
-        System.out.println("----------------------------------------");
-        System.out.println("Alpha: " + alpha);
-        System.out.println("----------------------------------------");
         return res;
     }
 
@@ -117,7 +120,8 @@ public class NaiveBayes {
                 List<Point> newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
                 List<Double> newProbabilities = new ArrayList<>(probabilities);
-                newProbabilities.add(_calcProbabilities[point.y][point.x].getPit_prob());
+                //newProbabilities.add(_calcProbabilities[point.y][point.x].getPit_prob());
+                newProbabilities.add(0.2);
                 FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
                 new_pit_probability[point.y][point.x].setPit_prob(1);
 
@@ -127,7 +131,8 @@ public class NaiveBayes {
                 List<Point> newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
                 List<Double> newProbabilities = new ArrayList<>(probabilities);
-                newProbabilities.add(_calcProbabilities[point.y][point.x].getPit_prob());
+                //newProbabilities.add(_calcProbabilities[point.y][point.x].getPit_prob());
+                newProbabilities.add(0.2);
                 FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
                 new_pit_probability[point.y][point.x].setPit_prob(1);
 
@@ -136,7 +141,8 @@ public class NaiveBayes {
                 newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
                 newProbabilities = new ArrayList<>(probabilities);
-                newProbabilities.add(1 - _calcProbabilities[point.y][point.x].getPit_prob());
+                //newProbabilities.add(1 - _calcProbabilities[point.y][point.x].getPit_prob());
+                newProbabilities.add(0.8);
                 new_pit_probability = deepCopy(pip_probability);
                 new_pit_probability[point.y][point.x].setPit_prob(0);
 
