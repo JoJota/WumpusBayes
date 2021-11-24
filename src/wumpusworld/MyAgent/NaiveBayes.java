@@ -74,7 +74,7 @@ public class NaiveBayes {
 
         //get values for point = pit
         double sum_pit = 0;
-        if (true) {
+        if (couldBePit(point)) {
             _calcProbabilities[point.y][point.x].setPit_prob(1);
             setPitFrontierValues(deepCopy(_calcProbabilities), deepCopy(newFrontier), new ArrayList<>());
             sum_pit = _pitFrontierValues.stream().mapToDouble(f -> f).sum();
@@ -203,7 +203,7 @@ public class NaiveBayes {
         List<Point> neighbors = getVisitedNeighbors(point, _world);
         boolean couldBe = true;
         for(Point neighbor : neighbors ){
-            if(!_world.hasBreeze(neighbor.x, neighbor.y)) couldBe = false;
+            if(!_world.hasBreeze(neighbor.x + 1, neighbor.y + 1)) couldBe = false;
         }
         return couldBe;
     }
