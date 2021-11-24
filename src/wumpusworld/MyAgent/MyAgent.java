@@ -50,19 +50,21 @@ public class MyAgent implements Agent
         //We are in a pit. Climb up.
         climbOutOfHoleIfPossible();
 
-        //use this for debugging
-        //pintDebuggingInfo(X, Y);
-        
         //decide next move
         SolvingAlgorithm algo = new SolvingAlgorithm(w);
         Point nextPoint = algo.calcNextMove();
 
-        //move to the new point
-        moveToPoint(nextPoint);
-
         //Basic Action
         //Shoot Wumpus if we know its position
-        shootWumpusIfPossible();
+         if (shootWumpusIfPossible()) {
+             return;
+         }
+
+        //use this for debugging
+        //pintDebuggingInfo(X, Y);
+
+        //move to the new point
+        moveToPoint(nextPoint);
     }
 
     private void moveToPoint(Point point) {
@@ -116,7 +118,7 @@ public class MyAgent implements Agent
         }
     }
 
-    private void shootWumpusIfPossible() {
+    private boolean shootWumpusIfPossible() {
         Point wumpus_point = WumpusProbability.testWumpusShooting();
 
         if (wumpus_point != null && w.hasArrow()) {
@@ -134,7 +136,9 @@ public class MyAgent implements Agent
             else {
                 GUI.AppendToTextArea("You missed the Wumpus :(");
             }
+            return true;
         }
+        return false;
     }
 
     private void grabGold() {

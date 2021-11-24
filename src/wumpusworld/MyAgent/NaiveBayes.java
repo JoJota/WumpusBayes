@@ -31,6 +31,9 @@ public class NaiveBayes {
         int rows = BoardProbabilities.GetBoardProbabilities().length;
         int columns = BoardProbabilities.GetBoardProbabilities()[0].length;
 
+        Point p = new Point(_world.getPlayerX(), _world.getPlayerY());
+        setNeighborPitProbabilities(p);
+
         for (int i = rows - 1; i >= 0; i--) {
             for (int j = 0; j < columns; j++) {
                 if (_world.hasPit(j+1, i+1)) {
@@ -45,6 +48,12 @@ public class NaiveBayes {
             }
             //TODO maybe swap X and Y
             BoardProbabilities.set_pitProbability(point.x, point.y, p_prob);
+        }
+    }
+
+    private static void setNeighborPitProbabilities(Point point) {
+        for (Point neighbor : getNeighbors(point, _world)) {
+            BoardProbabilities.set_pitProbability(neighbor.x, neighbor.y, 0);
         }
     }
 

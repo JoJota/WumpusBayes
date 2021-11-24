@@ -68,8 +68,6 @@ public class BoardProbabilities {
         printDebuggingInfo();
         NaiveBayes.calculateNewProbabilities();
         WumpusProbability.calculateNewProbabilities();
-
-        GUI.SetBoardProbabilities(_boardProbabilities);
     }
 
     public static Point GetNextPosition() {

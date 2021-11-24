@@ -38,6 +38,9 @@ public class WumpusProbability {
     }
 
     public static Point testWumpusShooting() {
+        if (BoardProbabilities.GetBoardProbabilities() == null) {
+            return null;
+        }
         int size = BoardProbabilities.GetBoardProbabilities().length;
         for (int i=0; i < size; i++) {
             for (int k=0; k < size; k++) {
