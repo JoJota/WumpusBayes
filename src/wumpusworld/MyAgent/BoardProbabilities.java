@@ -43,7 +43,7 @@ public class BoardProbabilities {
         _boardProbabilities = new FieldPropability[4][4];
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                FieldPropability prob = new FieldPropability(_pitProbability, _wumpusProbability);
+                FieldPropability prob = new FieldPropability(_wumpusProbability, _pitProbability);
                 prob.calculateDanagerProbability();
 
                 _boardProbabilities[i][j] = prob;
@@ -133,7 +133,7 @@ public class BoardProbabilities {
     //region private methods
 
     private static double getDangerProbability(int x, int y) {
-        FieldPropability fieldPropability = _boardProbabilities[y][x];
+        FieldPropability fieldPropability = _boardProbabilities[x][y];
         return fieldPropability.getDanger_prob();
     }
 

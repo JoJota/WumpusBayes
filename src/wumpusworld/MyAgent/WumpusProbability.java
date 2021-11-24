@@ -73,7 +73,6 @@ public class WumpusProbability {
                 for (Point sn : stenchNeighbors) {*/
             for (Point unvisitedNeighbor : getUnvisitedNeighbors(point, _world)) {
                 if (hasToBeWumpus(unvisitedNeighbor)) {
-                    System.out.println("Point: " + unvisitedNeighbor + " has to be wumpus");
                     resetWumpusProb();
                     //TODO maybe swap x and y ????
                     //BoardProbabilities.set_wumpusProbability(unvisitedNeighbor.y, unvisitedNeighbor.x, 1);

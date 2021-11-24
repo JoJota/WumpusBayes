@@ -83,9 +83,16 @@ public class NaiveBayes {
 
         double pitValue = sum_pit * _pitProbability;
         double noPitValue = sum_noPit * (1 - _pitProbability);
-        double alpha = pitValue / noPitValue;
+        double alpha = pitValue + noPitValue;
 
-        return pitValue * alpha;
+        if (alpha == 0) {
+            int i = 3;
+        }
+        double res = pitValue / alpha;
+        System.out.println("----------------------------------------");
+        System.out.println("Alpha: " + alpha);
+        System.out.println("----------------------------------------");
+        return res;
     }
 
     private static void setPitFrontierValues(FieldPropability[][] pip_probability, List<Point> frontier, List<Double> probabilities) {
@@ -105,21 +112,18 @@ public class NaiveBayes {
         Point point = frontier.get(0);
         // Does the field has a breeze around it
         if (breezeAround(point)) {
-            System.out.print("has a breeze around and ");
             // Field has breeze around and is a pit with certainty
             if (hasToBePit(point, pip_probability)) {
-                System.out.print("is certainly a pit\n");
                 List<Point> newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
                 List<Double> newProbabilities = new ArrayList<>(probabilities);
-                newProbabilities.add(1.0);
+                newProbabilities.add(_calcProbabilities[point.y][point.x].getPit_prob());
                 FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
                 new_pit_probability[point.y][point.x].setPit_prob(1);
 
                 setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities);
                 // Field has breeze around it and might be a pit
             } else {
-                System.out.print("could be a pit\n");
                 List<Point> newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
                 List<Double> newProbabilities = new ArrayList<>(probabilities);
@@ -140,7 +144,6 @@ public class NaiveBayes {
             }
             // Field is not a pit
         } else {
-            System.out.print("is not a pit\n");
             List<Point> newFrontier = deepCopy(frontier);
             newFrontier.remove(point);
             List<Double> newProbabilities = new ArrayList<>(probabilities);

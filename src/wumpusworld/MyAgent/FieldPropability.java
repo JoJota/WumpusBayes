@@ -7,17 +7,9 @@ public class FieldPropability {
     private final double wumpus_weight = 5;
     private final double pit_weight = 1;
 
-    public FieldPropability() {
-    }
-
-    public FieldPropability(double pit_prob) {
-        this.pit_prob = pit_prob;
-        calculateDanagerProbability();
-    }
-
     public FieldPropability(double wumpus_prob, double pit_prob) {
-        this.wumpus_prob = wumpus_prob;
-        this.pit_prob = pit_prob;
+        setWumpus_prob(wumpus_prob);
+        setPit_prob(pit_prob);
         calculateDanagerProbability();
     }
 
@@ -49,7 +41,10 @@ public class FieldPropability {
     }
 
     public FieldPropability copy() {
-        return new FieldPropability(wumpus_prob, pit_prob);
+        double w = wumpus_prob;
+        double p = pit_prob;
+        FieldPropability res = new FieldPropability(w, p);
+        return res;
     }
 
 }
