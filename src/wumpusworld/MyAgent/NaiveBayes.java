@@ -188,7 +188,7 @@ public class NaiveBayes {
                         break;
                     }
                     if (!_world.isVisited(q.x + 1, q.y + 1) && pip_probability[q.y][q.x].getPit_prob() == 0.2) {
-                        pitPossibilities.add(q);
+                        if(couldBePit(q)) pitPossibilities.add(q);
                     }
                 }
                 if (pitPossibilities.contains(point) && pitPossibilities.size() == 1) {
