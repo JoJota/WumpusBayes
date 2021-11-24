@@ -1,4 +1,4 @@
-package wumpusworld;
+package wumpusworld.MyAgent;
 
 public class FieldPropability {
     private double wumpus_prob;
@@ -36,14 +36,11 @@ public class FieldPropability {
 
     public void setPit_prob(double pit_prob) {
         this.pit_prob = pit_prob;
+        calculateDanagerProbability();
     }
 
     public double getDanger_prob() {
         return danger_prob;
-    }
-
-    public void setDanger_prob(double danger_prob) {
-        this.danger_prob = danger_prob;
     }
 
     public void calculateDanagerProbability() {

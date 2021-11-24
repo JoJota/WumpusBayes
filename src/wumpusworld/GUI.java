@@ -1,5 +1,8 @@
 package wumpusworld;
 
+import wumpusworld.MyAgent.FieldPropability;
+import wumpusworld.MyAgent.MyAgent;
+
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
@@ -382,11 +385,11 @@ public class GUI implements ActionListener
 
         DecimalFormat df = new DecimalFormat("#.##");
         JLabel wLabel = new JLabel("w: " + df.format(wumpusProb));
-        wLabel.setFont(new Font("Serif", Font.PLAIN, 10));
+        wLabel.setFont(new Font("Serif", Font.PLAIN, 15));
         JLabel pLabel = new JLabel("p: " + df.format(pitProb));
-        pLabel.setFont(new Font("Serif", Font.PLAIN, 10));
+        pLabel.setFont(new Font("Serif", Font.PLAIN, 15));
         JLabel dLabel = new JLabel("d: " + df.format(dangerProb));
-        dLabel.setFont(new Font("Serif", Font.PLAIN, 10));
+        dLabel.setFont(new Font("Serif", Font.PLAIN, 15));
 
         probPanel.add(wLabel);
         probPanel.add(pLabel);

@@ -1,5 +1,7 @@
 package wumpusworld;
 
+import wumpusworld.MyAgent.MyAgent;
+
 import java.util.Vector;
 /**
  * Starting class for the Wumpus World program. The program

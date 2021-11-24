@@ -33,4 +33,9 @@ public class Point {
                 ", y=" + y +
                 '}';
     }
+
+    public Point Copy() {
+        Point res = new Point(x, y);
+        return res;
+    }
 }
