@@ -39,8 +39,8 @@ public class WumpusProbability {
             return null;
         }
         int size = BoardProbabilities.GetBoardSize();
-        for (int i=0; i < size; i++) {
-            for (int k=0; k < size; k++) {
+        for (int i = 0; i < size; i++) {
+            for (int k = 0; k < size; k++) {
                 if (BoardProbabilities.get_wumpusProbability(i, k) == 1) {
                     return new Point(i + 1, k + 1);
                 }
@@ -58,44 +58,27 @@ public class WumpusProbability {
         int size = BoardProbabilities.GetBoardSize();
 
         HashSet<Point> stenchFields = new HashSet<>();
-        for (int x=0; x < size; x++) {
-            for (int y=0; y < size; y++) {
-                if (_world.hasStench(x+1, y+1)) {
+        for (int x = 0; x < size; x++) {
+            for (int y = 0; y < size; y++) {
+                if (_world.hasStench(x + 1, y + 1)) {
                     stenchFields.add(new Point(x, y));
                 }
             }
         }
-
         for (Point point : stenchFields) {
-            /*if (stenchAround(f)) {
-                List<Point> stenchNeighbors = getVisitedNeighbors(f);
-                stenchNeighbors.removeIf(neighbor -> !_world.hasStench(neighbor.x + 1, neighbor.y + 1));
-                for (Point sn : stenchNeighbors) {*/
             for (Point unvisitedNeighbor : getUnvisitedNeighbors(point, _world)) {
                 if (hasToBeWumpus(unvisitedNeighbor)) {
                     resetWumpusProb();
-                    //TODO maybe swap x and y ????
-                    //BoardProbabilities.set_wumpusProbability(unvisitedNeighbor.y, unvisitedNeighbor.x, 1);
                     BoardProbabilities.set_wumpusProbability(unvisitedNeighbor.x, unvisitedNeighbor.y, 1);
                     return;
                 }
                 probableWumpusField.add(unvisitedNeighbor);
             }
-                /*}
-            }*/
         }
-
-        /*for (int x = 0; x < _boardProbabilities.length; x++) {
-            for (int y = 0; y < _boardProbabilities.length; y++) {
-                if (!_world.isVisited(x+1, y+1)) {
-                    _boardProbabilities[y][x].setWumpus_prob(_wumpusProbability);
-                }
-            }
-        }*/
 
         for (Point point : probableWumpusField) {
             double newWumpusProb = 1.0 / probableWumpusField.size();
-            BoardProbabilities.set_wumpusProbability(point.y, point.x, newWumpusProb);
+            BoardProbabilities.set_wumpusProbability(point.x, point.y, newWumpusProb);
         }
     }
 
@@ -103,36 +86,43 @@ public class WumpusProbability {
         int size = BoardProbabilities.GetBoardSize();
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
-                BoardProbabilities.set_wumpusProbability(y, x, 0);
+                BoardProbabilities.set_wumpusProbability(x, y, 0);
             }
         }
     }
 
     private static void calculateNewWumpusProb() {
-        // TODO wumpus probability ist kleiner bei stench in der Nähe als normal (map 4)
-        // TODO calculateNewWumpusProb methode umschreiben, sodass er nur von einem wumpus ausgeht -> ES GIBT NUR EINEN WUMPUS (map 1)
-        //double sum = 0;
-        //return sum * (1.0 / 15); //1/15 = wumpus probability
         setWumpusFrontierValues();
         _wumpusProbabilities = BoardProbabilities.GetDeepCopy();
     }
 
     private static boolean hasToBeWumpus(Point point) {
+        List<Point> wumpusPossibilities = new ArrayList<>();
         for (Point visitedNeighbor : getVisitedNeighbors(point, _world)) {
             if (_world.hasStench(visitedNeighbor.x + 1, visitedNeighbor.y + 1)) {
-                List<Point> wumpusPossibilities = new ArrayList<>();
-                for (Point neighbor : getNeighbors(visitedNeighbor, _world )) {
+                for (Point neighbor : getNeighbors(visitedNeighbor, _world)) {
                     if (!_world.isVisited(neighbor.x + 1, neighbor.y + 1)) {
-                        wumpusPossibilities.add(neighbor);
+                        if (wumpusPossibilities.contains(neighbor) && neighbor.x == point.x && neighbor.y == point.y) {
+                            return true;
+                        } else if (checkVisitedNeighborsWithoutStench(neighbor)) {
+                            return true;
+                        } else {
+                            wumpusPossibilities.add(neighbor);
+                        }
                     }
-                }
-                if (wumpusPossibilities.contains(point) && wumpusPossibilities.size() == 1) {
-                    return true;
                 }
             }
         }
         return false;
     }
 
+    private static boolean checkVisitedNeighborsWithoutStench(Point neighbor) {
+        for (Point vN : getVisitedNeighbors(neighbor, _world)) {
+            if (!_world.hasStench(vN.x + 1, vN.y + 1)) {
+                return true;
+            }
+        }
+        return false;
+    }
     //endregion
 }
