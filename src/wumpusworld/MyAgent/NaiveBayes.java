@@ -73,21 +73,28 @@ public class NaiveBayes {
         System.out.println("Point: " + point);
 
         //get values for point = pit
-        _calcProbabilities[point.y][point.x].setPit_prob(1);
-        setPitFrontierValues(deepCopy(_calcProbabilities), deepCopy(newFrontier), new ArrayList<>());
-        double sum_pit = _pitFrontierValues.stream().mapToDouble(f -> f).sum();
+        double sum_pit = 0;
+        if (true) {
+            _calcProbabilities[point.y][point.x].setPit_prob(1);
+            setPitFrontierValues(deepCopy(_calcProbabilities), deepCopy(newFrontier), new ArrayList<>());
+            sum_pit = _pitFrontierValues.stream().mapToDouble(f -> f).sum();
 
-        System.out.println("pit sum:");
-        System.out.println(Arrays.toString(_pitFrontierValues.toArray()));
-        _pitFrontierValues.clear();
+            System.out.println("pit sum:");
+            System.out.println(Arrays.toString(_pitFrontierValues.toArray()));
+            _pitFrontierValues.clear();
+        }
 
+        double sum_noPit = 0;
         //get values for point != pit
-        _calcProbabilities[point.y][point.x].setPit_prob(0);
-        setPitFrontierValues(deepCopy(_calcProbabilities), deepCopy(newFrontier), new ArrayList<>());
-        double sum_noPit = _pitFrontierValues.stream().mapToDouble(f -> f).sum();
-        System.out.println("no pit sum:");
-        System.out.println(Arrays.toString(_pitFrontierValues.toArray()));
-        _pitFrontierValues.clear();
+        if (!hasToBePit(point, _calcProbabilities)) {
+            _calcProbabilities[point.y][point.x].setPit_prob(0);
+            setPitFrontierValues(deepCopy(_calcProbabilities), deepCopy(newFrontier), new ArrayList<>());
+            sum_noPit = _pitFrontierValues.stream().mapToDouble(f -> f).sum();
+            System.out.println("no pit sum:");
+            System.out.println(Arrays.toString(_pitFrontierValues.toArray()));
+            _pitFrontierValues.clear();
+        }
+
 
         double pitValue = sum_pit * _pitProbability;
         double noPitValue = sum_noPit * (1 - _pitProbability);
