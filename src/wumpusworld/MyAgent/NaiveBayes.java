@@ -192,6 +192,14 @@ public class NaiveBayes {
         return false;
     }
 
+    public static boolean couldBePit(Point point){
+        List<Point> neighbors = getVisitedNeighbors(point, _world);
+        boolean couldBe = true;
+        for(Point neighbor : neighbors ){
+            if(!_world.hasBreeze(neighbor.x, neighbor.y)) couldBe = false;
+        }
+        return couldBe;
+    }
 
 }
 
