@@ -86,6 +86,7 @@ public class NaiveBayes {
 
         double sum_noPit = 0;
         //get values for point != pit
+        System.out.println("hastobepit: " + point + " " + hasToBePit(point, _calcProbabilities));
         if (!hasToBePit(point, _calcProbabilities)) {
             _calcProbabilities[point.y][point.x].setPit_prob(0);
             setPitFrontierValues(deepCopy(_calcProbabilities), deepCopy(newFrontier), new ArrayList<>());
@@ -123,6 +124,7 @@ public class NaiveBayes {
         // Does the field has a breeze around it
         if (breezeAround(point)) {
             // Field has breeze around and is a pit with certainty
+            System.out.println("hastobepit: " + point + " " + hasToBePit(point, pip_probability));
             if (hasToBePit(point, pip_probability)) {
                 List<Point> newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
@@ -191,9 +193,29 @@ public class NaiveBayes {
                         if(couldBePit(q)) pitPossibilities.add(q);
                     }
                 }
+
                 if (pitPossibilities.contains(point) && pitPossibilities.size() == 1) {
                     return true;
                 }
+                /* ANFANG solution johannes
+                List<Point> unvisitedBreezeNeighbors = getUnvisitedNeighbors(p, _world);
+                unvisitedBreezeNeighbors.remove(point);
+                for (Point vBN : unvisitedBreezeNeighbors) {
+                    List<Point> visitedUnvisitedBreezeNeighbors = getVisitedNeighbors(vBN, _world);
+                    for (Point vUBN : visitedUnvisitedBreezeNeighbors) {
+                        if (!_world.hasBreeze(vUBN.x+1, vUBN.y+1)) {
+                            List<Point> res = getUnvisitedNeighbors(p, _world);
+                            res.remove(vBN);
+                            if (res.size() == 1) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                // ENDE SOLUTION JOHANNES
+                */
+
+
             }
         }
         return false;
