@@ -69,24 +69,12 @@ public class WumpusProbability {
             for (Point unvisitedNeighbor : getUnvisitedNeighbors(point, _world)) {
                 if (hasToBeWumpus(unvisitedNeighbor)) {
                     resetWumpusProb();
-                    //TODO maybe swap x and y ????
-                    //BoardProbabilities.set_wumpusProbability(unvisitedNeighbor.y, unvisitedNeighbor.x, 1);
                     BoardProbabilities.set_wumpusProbability(unvisitedNeighbor.x, unvisitedNeighbor.y, 1);
                     return;
                 }
                 probableWumpusField.add(unvisitedNeighbor);
             }
-                /*}
-            }*/
         }
-
-        /*for (int x = 0; x < _boardProbabilities.length; x++) {
-            for (int y = 0; y < _boardProbabilities.length; y++) {
-                if (!_world.isVisited(x+1, y+1)) {
-                    _boardProbabilities[y][x].setWumpus_prob(_wumpusProbability);
-                }
-            }
-        }*/
 
         for (Point point : probableWumpusField) {
             double newWumpusProb = 1.0 / probableWumpusField.size();
@@ -104,10 +92,6 @@ public class WumpusProbability {
     }
 
     private static void calculateNewWumpusProb() {
-        // TODO wumpus probability ist kleiner bei stench in der Nähe als normal (map 4)
-        // TODO calculateNewWumpusProb methode umschreiben, sodass er nur von einem wumpus ausgeht -> ES GIBT NUR EINEN WUMPUS (map 1)
-        //double sum = 0;
-        //return sum * (1.0 / 15); //1/15 = wumpus probability
         setWumpusFrontierValues();
         _wumpusProbabilities = BoardProbabilities.GetDeepCopy();
     }
@@ -127,9 +111,6 @@ public class WumpusProbability {
                         }
                     }
                 }
-                /*if (wumpusPossibilities.contains(point) && wumpusPossibilities.do) {
-                    return true;
-                }*/
             }
         }
         return false;
@@ -143,6 +124,5 @@ public class WumpusProbability {
         }
         return false;
     }
-
     //endregion
 }
