@@ -65,12 +65,7 @@ public class WumpusProbability {
                 }
             }
         }
-
         for (Point point : stenchFields) {
-            /*if (stenchAround(f)) {
-                List<Point> stenchNeighbors = getVisitedNeighbors(f);
-                stenchNeighbors.removeIf(neighbor -> !_world.hasStench(neighbor.x + 1, neighbor.y + 1));
-                for (Point sn : stenchNeighbors) {*/
             for (Point unvisitedNeighbor : getUnvisitedNeighbors(point, _world)) {
                 if (hasToBeWumpus(unvisitedNeighbor)) {
                     resetWumpusProb();
@@ -95,7 +90,7 @@ public class WumpusProbability {
 
         for (Point point : probableWumpusField) {
             double newWumpusProb = 1.0 / probableWumpusField.size();
-            BoardProbabilities.set_wumpusProbability(point.y, point.x, newWumpusProb);
+            BoardProbabilities.set_wumpusProbability(point.x, point.y, newWumpusProb);
         }
     }
 
@@ -103,7 +98,7 @@ public class WumpusProbability {
         int size = BoardProbabilities.GetBoardSize();
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
-                BoardProbabilities.set_wumpusProbability(y, x, 0);
+                BoardProbabilities.set_wumpusProbability(x, y, 0);
             }
         }
     }
@@ -118,17 +113,21 @@ public class WumpusProbability {
     }
 
     private static boolean hasToBeWumpus(Point point) {
+        List<Point> wumpusPossibilities = new ArrayList<>();
         for (Point visitedNeighbor : getVisitedNeighbors(point, _world)) {
             if (_world.hasStench(visitedNeighbor.x + 1, visitedNeighbor.y + 1)) {
-                List<Point> wumpusPossibilities = new ArrayList<>();
                 for (Point neighbor : getNeighbors(visitedNeighbor, _world )) {
                     if (!_world.isVisited(neighbor.x + 1, neighbor.y + 1)) {
-                        wumpusPossibilities.add(neighbor);
+                        if (wumpusPossibilities.contains(neighbor) && neighbor.x == point.x && neighbor.y == point.y) {
+                            return true;
+                        } else {
+                            wumpusPossibilities.add(neighbor);
+                        }
                     }
                 }
-                if (wumpusPossibilities.contains(point) && wumpusPossibilities.size() == 1) {
+                /*if (wumpusPossibilities.contains(point) && wumpusPossibilities.do) {
                     return true;
-                }
+                }*/
             }
         }
         return false;
