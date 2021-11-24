@@ -19,7 +19,6 @@ public class Dijkstra {
         DijkstraPoint end = new DijkstraPoint(point.x, point.y, Integer.MAX_VALUE, null, -1);
         unvisited.add(start);
         unvisited.add(end);
-        //Add all explored nodes that have no Wumpus and no Pit to the unvisited list
         for (int i = 1; i < 5; i++) {
             for (int j = 1; j < 5; j++) {
                 if (!(i == end.getX() && j == end.getY()) && !(i == start.getX() && j == start.getY())) {
@@ -32,8 +31,9 @@ public class Dijkstra {
 
         while (unvisited.size() != 0) {
             DijkstraPoint currentPoint = getLowestCostPoint(unvisited);
+            if (currentPoint.getX() == end.getX() && currentPoint.getY() == end.getY()) break;
+
             unvisited.remove(currentPoint);
-            if (currentPoint == end) break;
             //find neighbours and update their cost and the previous Point
             for (DijkstraPoint dijkstraPoint : unvisited) {
                 if (dijkstraPoint.getY() == currentPoint.getY()) {
@@ -41,18 +41,26 @@ public class Dijkstra {
                         if (dijkstraPoint.getCost() > currentPoint.getCost() + 1) {
                             dijkstraPoint.setCost(currentPoint.getCost() + 1);
                             dijkstraPoint.setPrevious(currentPoint);
-                            List<String> list = new ArrayList<>(currentPoint.getMoves());
-                            list.addAll(getNewMoves(World.DIR_RIGHT, currentPoint.getDirection()));
-                            dijkstraPoint.setMoves(list);
+                            List<String> moves = new ArrayList<>(currentPoint.getMoves());
+                            if (world.hasPit(currentPoint.getX(), currentPoint.getY())){
+                                moves.add(World.A_CLIMB);
+                                dijkstraPoint.setCost(dijkstraPoint.getCost() + 1000);
+                            }
+                            moves.addAll(getNewMoves(World.DIR_RIGHT, currentPoint.getDirection()));
+                            dijkstraPoint.setMoves(moves);
                             dijkstraPoint.setDirection(World.DIR_RIGHT);
                         }
                     } else if (dijkstraPoint.getX() == currentPoint.getX() - 1) {
                         if (dijkstraPoint.getCost() > currentPoint.getCost() + 1) {
                             dijkstraPoint.setCost(currentPoint.getCost() + 1);
                             dijkstraPoint.setPrevious(currentPoint);
-                            List<String> list = new ArrayList<>(currentPoint.getMoves());
-                            list.addAll(getNewMoves(World.DIR_LEFT, currentPoint.getDirection()));
-                            dijkstraPoint.setMoves(list);
+                            List<String> moves = new ArrayList<>(currentPoint.getMoves());
+                            if (world.hasPit(currentPoint.getX(), currentPoint.getY())){
+                                moves.add(World.A_CLIMB);
+                                dijkstraPoint.setCost(dijkstraPoint.getCost() + 1000);
+                            }
+                            moves.addAll(getNewMoves(World.DIR_LEFT, currentPoint.getDirection()));
+                            dijkstraPoint.setMoves(moves);
                             dijkstraPoint.setDirection(World.DIR_LEFT);
                         }
                     }
@@ -61,18 +69,26 @@ public class Dijkstra {
                         if (dijkstraPoint.getCost() > currentPoint.getCost() + 1) {
                             dijkstraPoint.setCost(currentPoint.getCost() + 1);
                             dijkstraPoint.setPrevious(currentPoint);
-                            List<String> list = new ArrayList<>(currentPoint.getMoves());
-                            list.addAll(getNewMoves(World.DIR_UP, currentPoint.getDirection()));
-                            dijkstraPoint.setMoves(list);
+                            List<String> moves = new ArrayList<>(currentPoint.getMoves());
+                            if (world.hasPit(currentPoint.getX(), currentPoint.getY())){
+                                moves.add(World.A_CLIMB);
+                                dijkstraPoint.setCost(dijkstraPoint.getCost() + 1000);
+                            }
+                            moves.addAll(getNewMoves(World.DIR_UP, currentPoint.getDirection()));
+                            dijkstraPoint.setMoves(moves);
                             dijkstraPoint.setDirection(World.DIR_UP);
                         }
                     } else if (dijkstraPoint.getY() == currentPoint.getY() - 1) {
                         if (dijkstraPoint.getCost() > currentPoint.getCost() + 1) {
                             dijkstraPoint.setCost(currentPoint.getCost() + 1);
                             dijkstraPoint.setPrevious(currentPoint);
-                            List<String> list = new ArrayList<>(currentPoint.getMoves());
-                            list.addAll(getNewMoves(World.DIR_DOWN, currentPoint.getDirection()));
-                            dijkstraPoint.setMoves(list);
+                            List<String> moves = new ArrayList<>(currentPoint.getMoves());
+                            if (world.hasPit(currentPoint.getX(), currentPoint.getY())){
+                                moves.add(World.A_CLIMB);
+                                dijkstraPoint.setCost(dijkstraPoint.getCost() + 1000);
+                            }
+                            moves.addAll(getNewMoves(World.DIR_DOWN, currentPoint.getDirection()));
+                            dijkstraPoint.setMoves(moves);
                             dijkstraPoint.setDirection(World.DIR_DOWN);
                         }
                     }
