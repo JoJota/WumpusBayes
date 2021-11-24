@@ -190,6 +190,7 @@ public class NaiveBayes {
                         pitPossibilities.clear();
                         break;
                     }
+                    // CARINA if (!_world.isVisited(q.x + 1, q.y + 1) && pip_probability[q.x][q.y].getPit_prob() == 0.2) {
                     if (!_world.isVisited(q.x + 1, q.y + 1) && pip_probability[q.y][q.x].getPit_prob() == 0.2) {
                         // CARINA if(couldBePit(q)) pitPossibilities.add(q);
                         pitPossibilities.add(q);
