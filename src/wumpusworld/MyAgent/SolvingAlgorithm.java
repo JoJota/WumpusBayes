@@ -17,18 +17,11 @@ public class SolvingAlgorithm {
         this.w = w;
     }
 
-    public Point calcNextMove() {
+    public void calcNextMove() {
         BoardProbabilities.Init(w);
         addNewDirections();
 
-        WumpusProbability.Init(w);
-        WumpusProbability.calculateNewProbabilities();
-        NaiveBayes.Init(w);
-        NaiveBayes.calculateNewProbabilities();
-
         BoardProbabilities.CalculateNewProbabilities();
-
-        return BoardProbabilities.GetNextPosition();
     }
 
     private void addNewDirections() {

@@ -52,7 +52,7 @@ public class MyAgent implements Agent
 
         //decide next move
         SolvingAlgorithm algo = new SolvingAlgorithm(w);
-        Point nextPoint = algo.calcNextMove();
+        algo.calcNextMove();
 
         //Basic Action
         //Shoot Wumpus if we know its position
@@ -64,10 +64,11 @@ public class MyAgent implements Agent
         //pintDebuggingInfo(X, Y);
 
         //move to the new point
-        moveToPoint(nextPoint);
+        moveToPoint();
     }
 
-    private void moveToPoint(Point point) {
+    private void moveToPoint() {
+        Point point = BoardProbabilities.GetNextPosition();
         List<String> moves = Dijkstra.GetShortestPath(w, point);
 
         GUI.AppendToTextArea("Moving from point (x=" + w.getPlayerX() + "|y=" + w.getPlayerY() + ") to point(x=" + point.x + "|y=" + point.y + ")");
