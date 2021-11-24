@@ -42,7 +42,7 @@ public class WumpusProbability {
         for (int i=0; i < size; i++) {
             for (int k=0; k < size; k++) {
                 if (BoardProbabilities.get_wumpusProbability(i, k) == 1) {
-                    return new Point(k + 1, i + 1);
+                    return new Point(i + 1, k + 1);
                 }
             }
         }
