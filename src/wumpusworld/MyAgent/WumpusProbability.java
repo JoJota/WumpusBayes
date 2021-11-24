@@ -67,9 +67,11 @@ public class WumpusProbability {
         }
         for (Point point : stenchFields) {
             for (Point unvisitedNeighbor : getUnvisitedNeighbors(point, _world)) {
-                if (hasToBeWumpus(unvisitedNeighbor)) {
+                Point wumpusPoint = hasToBeWumpus(unvisitedNeighbor);
+                if (wumpusPoint != null) {
+                    System.out.println("FOUND WUMPUS AT: " + wumpusPoint);
                     resetWumpusProb();
-                    BoardProbabilities.set_wumpusProbability(unvisitedNeighbor.x, unvisitedNeighbor.y, 1);
+                    BoardProbabilities.set_wumpusProbability(wumpusPoint.x, wumpusPoint.y, 1);
                     return;
                 }
                 probableWumpusField.add(unvisitedNeighbor);
@@ -96,29 +98,36 @@ public class WumpusProbability {
         _wumpusProbabilities = BoardProbabilities.GetDeepCopy();
     }
 
-    private static boolean hasToBeWumpus(Point point) {
+    private static Point hasToBeWumpus(Point point) {
         List<Point> wumpusPossibilities = new ArrayList<>();
         for (Point visitedNeighbor : getVisitedNeighbors(point, _world)) {
             if (_world.hasStench(visitedNeighbor.x + 1, visitedNeighbor.y + 1)) {
                 for (Point neighbor : getNeighbors(visitedNeighbor, _world)) {
                     if (!_world.isVisited(neighbor.x + 1, neighbor.y + 1)) {
                         if (wumpusPossibilities.contains(neighbor) && neighbor.x == point.x && neighbor.y == point.y) {
-                            return true;
-                        } else if (checkVisitedNeighborsWithoutStench(neighbor)) {
-                            return true;
+                            System.out.println("1: " + point);
+                            return point;
                         } else {
-                            wumpusPossibilities.add(neighbor);
+                            if (!checkVisitedNeighborsWithoutStench(point, neighbor)) {
+                                wumpusPossibilities.add(neighbor);
+                            }
                         }
                     }
                 }
             }
         }
-        return false;
+
+        if (wumpusPossibilities.size() == 1) {
+            return wumpusPossibilities.get(0);
+        }
+
+        return null;
     }
 
-    private static boolean checkVisitedNeighborsWithoutStench(Point neighbor) {
+    private static boolean checkVisitedNeighborsWithoutStench(Point point, Point neighbor) {
         for (Point vN : getVisitedNeighbors(neighbor, _world)) {
             if (!_world.hasStench(vN.x + 1, vN.y + 1)) {
+                System.out.println("hi from point: " + point + " neighbor: " + neighbor);
                 return true;
             }
         }
