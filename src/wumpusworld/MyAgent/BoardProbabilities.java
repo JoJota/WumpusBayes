@@ -8,12 +8,15 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static wumpusworld.MyAgent.Common.deepCopy;
+
 public class BoardProbabilities {
     //region private variables
 
     private static FieldPropability[][] _boardProbabilities = null;
     private static List<Point> _frontier;
     private static DecimalFormat df;
+    private static boolean isInitialized = false;
 
     //endregion
 
@@ -47,14 +50,23 @@ public class BoardProbabilities {
             }
         }
         _boardProbabilities[0][0] = new FieldPropability(0, 0);
+        isInitialized = true;
     }
 
     //endregion
 
     //region public methods
 
-    public static FieldPropability[][] GetBoardProbabilities() {
-        return _boardProbabilities;
+    public static int GetBoardSize() {
+        return _boardProbabilities.length;
+    }
+
+    public static boolean IsInitialized() {
+        return isInitialized;
+    }
+
+    public static FieldPropability[][] GetDeepCopy() {
+        return deepCopy(_boardProbabilities);
     }
 
     public static void AddPointToFrontier(int x, int y) {
@@ -65,7 +77,7 @@ public class BoardProbabilities {
     }
 
     public static void CalculateNewProbabilities() {
-        printDebuggingInfo();
+        //printDebuggingInfo();
         NaiveBayes.calculateNewProbabilities();
         WumpusProbability.calculateNewProbabilities();
     }
@@ -165,8 +177,8 @@ public class BoardProbabilities {
     }
 
     private static void printWumpusProbabilities() {
-        for (int i = BoardProbabilities.GetBoardProbabilities().length - 1; i >= 0; i--) {
-            for (int j = 0; j < BoardProbabilities.GetBoardProbabilities()[0].length; j++) {
+        for (int i = _boardProbabilities.length - 1; i >= 0; i--) {
+            for (int j = 0; j < _boardProbabilities.length; j++) {
                 Point p = new Point(j, i);
                 if (_frontier.contains(p)) {
                     System.out.print("[" + df.format(_boardProbabilities[i][j].getWumpus_prob()) + "]");

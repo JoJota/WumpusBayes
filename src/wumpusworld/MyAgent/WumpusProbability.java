@@ -32,19 +32,16 @@ public class WumpusProbability {
         } else {
             resetWumpusProb();
         }
-
-        System.out.println("Wumpus Prob");
-        printWumpusProbabilities();
     }
 
     public static Point testWumpusShooting() {
-        if (BoardProbabilities.GetBoardProbabilities() == null) {
+        if (!BoardProbabilities.IsInitialized()) {
             return null;
         }
-        int size = BoardProbabilities.GetBoardProbabilities().length;
+        int size = BoardProbabilities.GetBoardSize();
         for (int i=0; i < size; i++) {
             for (int k=0; k < size; k++) {
-                if (BoardProbabilities.GetBoardProbabilities()[i][k].getWumpus_prob() == 1) {
+                if (BoardProbabilities.get_wumpusProbability(i, k) == 1) {
                     return new Point(k + 1, i + 1);
                 }
             }
@@ -58,7 +55,7 @@ public class WumpusProbability {
 
     private static void setWumpusFrontierValues() {
         HashSet<Point> probableWumpusField = new HashSet<>();
-        int size = BoardProbabilities.GetBoardProbabilities().length;
+        int size = BoardProbabilities.GetBoardSize();
 
         HashSet<Point> stenchFields = new HashSet<>();
         for (int x=0; x < size; x++) {
@@ -99,15 +96,15 @@ public class WumpusProbability {
 
         for (Point point : probableWumpusField) {
             double newWumpusProb = 1.0 / probableWumpusField.size();
-            BoardProbabilities.GetBoardProbabilities()[point.y][point.x].setWumpus_prob(newWumpusProb);
+            BoardProbabilities.set_wumpusProbability(point.y, point.x, newWumpusProb);
         }
     }
 
     private static void resetWumpusProb() {
-        int size = BoardProbabilities.GetBoardProbabilities().length;
+        int size = BoardProbabilities.GetBoardSize();
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
-                BoardProbabilities.GetBoardProbabilities()[y][x].setWumpus_prob(0);
+                BoardProbabilities.set_wumpusProbability(y, x, 0);
             }
         }
     }
@@ -118,18 +115,7 @@ public class WumpusProbability {
         //double sum = 0;
         //return sum * (1.0 / 15); //1/15 = wumpus probability
         setWumpusFrontierValues();
-        _wumpusProbabilities = deepCopy(BoardProbabilities.GetBoardProbabilities());
-    }
-
-    private static void printWumpusProbabilities() {
-        for (int i = BoardProbabilities.GetBoardProbabilities().length - 1; i >= 0; i--) {
-            for (int j = 0; j < BoardProbabilities.GetBoardProbabilities()[0].length; j++) {
-                Point p = new Point(j, i);
-                System.out.print(df.format(BoardProbabilities.GetBoardProbabilities()[i][j].getWumpus_prob()));
-                System.out.print("  ");
-            }
-            System.out.println();
-        }
+        _wumpusProbabilities = BoardProbabilities.GetDeepCopy();
     }
 
     private static boolean hasToBeWumpus(Point point) {

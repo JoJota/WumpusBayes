@@ -28,14 +28,13 @@ public class NaiveBayes {
     }
 
     public static void calculateNewProbabilities() {
-        int rows = BoardProbabilities.GetBoardProbabilities().length;
-        int columns = BoardProbabilities.GetBoardProbabilities()[0].length;
+        int size = BoardProbabilities.GetBoardSize();
 
         Point p = new Point(_world.getPlayerX(), _world.getPlayerY());
         setNeighborPitProbabilities(p);
 
-        for (int i = rows - 1; i >= 0; i--) {
-            for (int j = 0; j < columns; j++) {
+        for (int i = size - 1; i >= 0; i--) {
+            for (int j = 0; j < size; j++) {
                 if (_world.hasPit(j+1, i+1)) {
                     BoardProbabilities.set_pitProbability(j, i, 1);
                 }
@@ -52,8 +51,12 @@ public class NaiveBayes {
     }
 
     private static void setNeighborPitProbabilities(Point point) {
-        for (Point neighbor : getNeighbors(point, _world)) {
-            BoardProbabilities.set_pitProbability(neighbor.x, neighbor.y, 0);
+        if (!_world.hasBreeze(point.x, point.y)) {
+            Point myPoint = new Point(point.x - 1, point.y - 1);
+            List<Point> neighbors = getNeighbors(myPoint, _world);
+            for (Point neighbor : neighbors) {
+                BoardProbabilities.set_pitProbability(neighbor.x, neighbor.y, 0);
+            }
         }
     }
 
@@ -64,17 +67,17 @@ public class NaiveBayes {
     private static double calculateNewPitProb(Point point) {
         List<Point> newFrontier = deepCopy(BoardProbabilities.get_frontier());
         newFrontier.remove(point);
-        _calcProbabilities = deepCopy(BoardProbabilities.GetBoardProbabilities());
+        _calcProbabilities = BoardProbabilities.GetDeepCopy();
 
         //get values for point = pit
         _calcProbabilities[point.y][point.x].setPit_prob(1);
-        setPitFrontierValues(deepCopy(_calcProbabilities), deepCopy(newFrontier), new ArrayList<>(), new ArrayList<>());
+        setPitFrontierValues(deepCopy(_calcProbabilities), deepCopy(newFrontier), new ArrayList<>());
         double sum_pit = _pitFrontierValues.stream().mapToDouble(f -> f).sum();
         _pitFrontierValues.clear();
 
         //get values for point != pit
         _calcProbabilities[point.y][point.x].setPit_prob(0);
-        setPitFrontierValues(deepCopy(_calcProbabilities), deepCopy(newFrontier), new ArrayList<>(), new ArrayList<>());
+        setPitFrontierValues(deepCopy(_calcProbabilities), deepCopy(newFrontier), new ArrayList<>());
         double sum_noPit = _pitFrontierValues.stream().mapToDouble(f -> f).sum();
         _pitFrontierValues.clear();
 
@@ -85,7 +88,7 @@ public class NaiveBayes {
         return pitValue * alpha;
     }
 
-    private static void setPitFrontierValues(FieldPropability[][] pip_probability, List<Point> frontier, List<Double> probabilities, List<Point> pits) {
+    private static void setPitFrontierValues(FieldPropability[][] pip_probability, List<Point> frontier, List<Double> probabilities) {
         if (frontier.isEmpty()) {
             double res = 1;
             if (probabilities.isEmpty()) {
@@ -104,7 +107,7 @@ public class NaiveBayes {
         if (breezeAround(point)) {
             System.out.print("has a breeze around and ");
             // Field has breeze around and is a pit with certainty
-            if (hasToBePit(point, pits, pip_probability)) {
+            if (hasToBePit(point, pip_probability)) {
                 System.out.print("is certainly a pit\n");
                 List<Point> newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
@@ -113,7 +116,7 @@ public class NaiveBayes {
                 FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
                 new_pit_probability[point.y][point.x].setPit_prob(1);
 
-                setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
+                setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities);
                 // Field has breeze around it and might be a pit
             } else {
                 System.out.print("could be a pit\n");
@@ -124,7 +127,7 @@ public class NaiveBayes {
                 FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
                 new_pit_probability[point.y][point.x].setPit_prob(1);
 
-                setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
+                setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities);
 
                 newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
@@ -133,7 +136,7 @@ public class NaiveBayes {
                 new_pit_probability = deepCopy(pip_probability);
                 new_pit_probability[point.y][point.x].setPit_prob(0);
 
-                setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
+                setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities);
             }
             // Field is not a pit
         } else {
@@ -145,7 +148,7 @@ public class NaiveBayes {
             FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
             new_pit_probability[point.y][point.x].setPit_prob(0);
 
-            setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities, pits);
+            setPitFrontierValues(new_pit_probability, newFrontier, newProbabilities);
         }
     }
 
@@ -159,7 +162,7 @@ public class NaiveBayes {
         return false;
     }
 
-    private static boolean hasToBePit(Point point, List<Point> pits, FieldPropability[][] pip_probability) {
+    private static boolean hasToBePit(Point point, FieldPropability[][] pip_probability) {
         for (Point p : getVisitedNeighbors(point, _world)) {
             if (_world.hasBreeze(p.x + 1, p.y + 1)) {
                 List<Point> pitPossibilities = new ArrayList<>();
