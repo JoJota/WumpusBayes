@@ -88,15 +88,18 @@ public class BoardProbabilities {
         double minDanger = Double.POSITIVE_INFINITY;
         int x = 0;
         int y = 0;
-
-        for (Point p : _frontier) {
-            double danger = getDangerProbability(p.x, p.y);
-            if (danger < minDanger) {
-                minDanger = danger;
-                x = p.x;
-                y = p.y;
+        if( _frontier.size() == 1){
+            x = _frontier.get(0).x;
+            y = _frontier.get(0).y;
+        }else
+            for (Point p : _frontier) {
+                double danger = getDangerProbability(p.x, p.y);
+                if (danger < minDanger) {
+                    minDanger = danger;
+                    x = p.x;
+                    y = p.y;
+                }
             }
-        }
 
         Point res = new Point(x + 1, y + 1);
         _frontier.remove(new Point(x, y));
