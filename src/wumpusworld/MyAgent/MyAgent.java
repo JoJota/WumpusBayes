@@ -25,7 +25,9 @@ public class MyAgent implements Agent
      */
     public MyAgent(World world)
     {
-        w = world;   
+        w = world;
+        BoardProbabilities.Reset();
+        GUI.ClearTextArea();
     }
    
             

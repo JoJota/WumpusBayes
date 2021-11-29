@@ -55,6 +55,11 @@ public class BoardProbabilities {
         isInitialized = true;
     }
 
+    public static void Reset() {
+        _boardProbabilities = null;
+        isInitialized = false;
+    }
+
     //endregion
 
     //region public methods

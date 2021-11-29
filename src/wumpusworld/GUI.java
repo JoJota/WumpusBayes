@@ -239,6 +239,10 @@ public class GUI implements ActionListener
     public static void AppendToTextArea(String line) {
         display.append(line + "\n");
     }
+
+    public static void ClearTextArea() {
+        display.setText("");
+    }
     
     /**
      * Button commands.

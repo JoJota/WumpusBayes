@@ -46,7 +46,6 @@ public class NaiveBayes {
             if (breezeAround(point)) {
                 p_prob = calculateNewPitProb(point);
             }
-            //TODO maybe swap X and Y
             BoardProbabilities.set_pitProbability(point.x, point.y, p_prob);
         }
     }
