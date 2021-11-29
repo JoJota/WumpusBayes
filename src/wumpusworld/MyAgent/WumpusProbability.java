@@ -14,8 +14,6 @@ public class WumpusProbability {
     //region private variables
 
     private static World _world;
-    private static DecimalFormat df;
-    private static FieldPropability[][] _wumpusProbabilities;
 
     //endregion
 
@@ -23,7 +21,6 @@ public class WumpusProbability {
 
     public static void Init(World world) {
         _world = world;
-        df = new DecimalFormat("#.##");
     }
 
     public static void calculateNewProbabilities() {
@@ -34,6 +31,10 @@ public class WumpusProbability {
         }
     }
 
+    /**
+     * this method checks, if the exact position of the wumpus in known
+     * @return the exact Position of the wumpus or null if the position is not known
+     */
     public static Point testWumpusShooting() {
         if (!BoardProbabilities.IsInitialized()) {
             return null;
@@ -53,6 +54,9 @@ public class WumpusProbability {
 
     //region private methods
 
+    /**
+     * this method calculates the new wumpus probabilities
+     */
     private static void setWumpusFrontierValues() {
         HashSet<Point> probableWumpusField = new HashSet<>();
         int size = BoardProbabilities.GetBoardSize();
@@ -69,7 +73,6 @@ public class WumpusProbability {
             for (Point unvisitedNeighbor : getUnvisitedNeighbors(point, _world)) {
                 Point wumpusPoint = hasToBeWumpus(unvisitedNeighbor);
                 if (wumpusPoint != null) {
-                    System.out.println("FOUND WUMPUS AT: " + wumpusPoint);
                     resetWumpusProb();
                     BoardProbabilities.set_wumpusProbability(wumpusPoint.x, wumpusPoint.y, 1);
                     return;
@@ -84,6 +87,9 @@ public class WumpusProbability {
         }
     }
 
+    /**
+     * this methods sets the wumpus probability to 0, after the wumpus was shot
+     */
     private static void resetWumpusProb() {
         int size = BoardProbabilities.GetBoardSize();
         for (int x = 0; x < size; x++) {
@@ -95,7 +101,6 @@ public class WumpusProbability {
 
     private static void calculateNewWumpusProb() {
         setWumpusFrontierValues();
-        _wumpusProbabilities = BoardProbabilities.GetDeepCopy();
     }
 
     private static Point hasToBeWumpus(Point point) {
@@ -105,7 +110,6 @@ public class WumpusProbability {
                 for (Point neighbor : getNeighbors(visitedNeighbor, _world)) {
                     if (!_world.isVisited(neighbor.x + 1, neighbor.y + 1)) {
                         if (wumpusPossibilities.contains(neighbor) && neighbor.x == point.x && neighbor.y == point.y) {
-                            System.out.println("1: " + point);
                             return point;
                         } else {
                             if (!checkVisitedNeighborsWithoutStench(point, neighbor)) {
@@ -127,7 +131,6 @@ public class WumpusProbability {
     private static boolean checkVisitedNeighborsWithoutStench(Point point, Point neighbor) {
         for (Point vN : getVisitedNeighbors(neighbor, _world)) {
             if (!_world.hasStench(vN.x + 1, vN.y + 1)) {
-                System.out.println("hi from point: " + point + " neighbor: " + neighbor);
                 return true;
             }
         }

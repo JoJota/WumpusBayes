@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class MyAgent implements Agent
 {
-    private World w;
+    private final World w;
     
     /**
      * Creates a new instance of your solver agent.
@@ -69,24 +69,24 @@ public class MyAgent implements Agent
         moveToPoint();
     }
 
+    /**
+     * This method gets the best position to explore next(calculated with Naive Bayes)
+     * Than Dijkstra is used to find the best way to get to the point
+     */
     private void moveToPoint() {
         Point point = BoardProbabilities.GetNextPosition();
         List<String> moves = Dijkstra.GetShortestPath(w, point);
 
         GUI.AppendToTextArea("Moving from point (x=" + w.getPlayerX() + "|y=" + w.getPlayerY() + ") to point(x=" + point.x + "|y=" + point.y + ")");
-        System.out.println("Moving to point(x={" + point.x + "}|y={" + point.y + "}");
-
-        /* if (moves.size() == 0) {
-            System.out.println("Moves is empty");
-            w.doAction(World.A_MOVE);
-        } */
 
         for (String move : moves) {
             w.doAction(move);
-            // System.out.println("Moves: " + move);
         }
     }
 
+    /**
+     * used to debug the program
+     */
     private void pintDebuggingInfo(int X, int Y) {
         //Test the environment
         System.out.println("Next move, current score: " + w.getScore());
@@ -121,6 +121,11 @@ public class MyAgent implements Agent
         }
     }
 
+    /**
+     * Checks if the position of the wumpus is known
+     * Shoots the wumpus if the position is known
+     * @return true if the wumpus was shot, false if it was not shot
+     */
     private boolean shootWumpusIfPossible() {
         Point wumpus_point = WumpusProbability.testWumpusShooting();
 
@@ -133,7 +138,6 @@ public class MyAgent implements Agent
             GUI.AppendToTextArea("Shooting arrow at point (x=" + wumpus_point.x + "|y=" + wumpus_point.y + ")");
             w.doAction(World.A_SHOOT);
             if (!w.wumpusAlive()) {
-                System.out.println("WUMPUS IS DEAD");
                 GUI.AppendToTextArea("You killed the Wumpus!");
             }
             else {
@@ -145,17 +149,15 @@ public class MyAgent implements Agent
     }
 
     private void grabGold() {
-        System.out.println("I am grabbing gold");
         w.doAction(World.A_GRAB);
 
         GUI.AppendToTextArea("You found the Gold !!!");
-        GUI.AppendToTextArea("Congratulations, you finished this level with a score of " + (w.getScore() + 1000));
+        GUI.AppendToTextArea("Congratulations, you finished this level with a score of " + w.getScore());
     }
 
     private void climbOutOfHoleIfPossible() {
         if (w.isInPit())
         {
-            System.out.println("I am climbing out");
             GUI.AppendToTextArea("Climbing out of the hole");
             w.doAction(World.A_CLIMB);
         }

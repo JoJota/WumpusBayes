@@ -13,6 +13,10 @@ public class SolvingAlgorithm {
     private final Direction BOTTOM = Direction.BOTTOM;
     private final Direction LEFT = Direction.LEFT;
 
+    /**
+     * this class is used to calculate the next best move for the player
+     * At each move all the new possible directions are add to the frontier that is used to calculate the Naive Bayes
+     */
     public SolvingAlgorithm(World w) {
         this.w = w;
     }

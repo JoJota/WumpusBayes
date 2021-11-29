@@ -1,13 +1,19 @@
 package wumpusworld.MyAgent;
 
-public class FieldPropability {
+public class FieldProbability {
     private double wumpus_prob;
     private double pit_prob;
     private double danger_prob;
     private final double wumpus_weight = 4;
     private final double pit_weight = 1;
 
-    public FieldPropability(double wumpus_prob, double pit_prob) {
+    /**
+     * this class is used to represent all the probabilities for one position in the world
+     * with the @wumpus_prob and @the pit_prob the danger of the position is calculated with a weights for both values
+     * @param wumpus_prob the probability, that the wumpus is at this
+     * @param pit_prob the probability, that a pit is at this position
+     */
+    public FieldProbability(double wumpus_prob, double pit_prob) {
         setWumpus_prob(wumpus_prob);
         setPit_prob(pit_prob);
         calculateDanagerProbability();
@@ -40,11 +46,10 @@ public class FieldPropability {
         this.danger_prob = ((wumpus_prob * wumpus_weight) + (pit_prob * pit_weight)) / total_weight;
     }
 
-    public FieldPropability copy() {
+    public FieldProbability copy() {
         double w = wumpus_prob;
         double p = pit_prob;
-        FieldPropability res = new FieldPropability(w, p);
-        return res;
+        return new FieldProbability(w, p);
     }
 
 }

@@ -1,6 +1,6 @@
 package wumpusworld;
 
-import wumpusworld.MyAgent.FieldPropability;
+import wumpusworld.MyAgent.FieldProbability;
 import wumpusworld.MyAgent.MyAgent;
 
 import javax.swing.*;
@@ -30,7 +30,7 @@ public class GUI implements ActionListener
     private JComboBox mapList;
     private Vector<WorldMap> maps;
     private static JTextArea display;
-    private static FieldPropability[][] boardProbabilities;
+    private static FieldProbability[][] boardProbabilities;
     
     private ImageIcon l_breeze;
     private ImageIcon l_stench;
@@ -209,6 +209,7 @@ public class GUI implements ActionListener
         
         frame.getContentPane().add(buttons);
 
+        //this text area is used for debugging
         JPanel textArea = getTextAreaPanel();
         frame.getContentPane().add(textArea);
         
@@ -351,6 +352,7 @@ public class GUI implements ActionListener
                     blocks[i][j].setBackground(Color.GRAY);
                 }
 
+                //this GUI elements are used to visualize the probabilities for each position for debugging
                 showBoardProbabilities(i, j);
                 
                 blocks[i][j].updateUI();
@@ -402,7 +404,7 @@ public class GUI implements ActionListener
         blocks[i][j].add(probPanel, BorderLayout.PAGE_END);
     }
 
-    public static void SetBoardProbabilities(FieldPropability[][] board) {
+    public static void SetBoardProbabilities(FieldProbability[][] board) {
         boardProbabilities = board;
     }
 }

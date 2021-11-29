@@ -13,7 +13,7 @@ import static wumpusworld.MyAgent.Common.deepCopy;
 public class BoardProbabilities {
     //region private variables
 
-    private static FieldPropability[][] _boardProbabilities = null;
+    private static FieldProbability[][] _boardProbabilities = null;
     private static List<Point> _frontier;
     private static DecimalFormat df;
     private static boolean isInitialized = false;
@@ -34,24 +34,22 @@ public class BoardProbabilities {
             initBoard();
             _frontier = new ArrayList<>();
         }
-        df = new DecimalFormat("#.##");
+
         WumpusProbability.Init(world);
         NaiveBayes.Init(world);
-        //df.setMinimumFractionDigits(3);
-        //df.setMaximumFractionDigits(3);
     }
 
     private static void initBoard() {
-        _boardProbabilities = new FieldPropability[4][4];
+        _boardProbabilities = new FieldProbability[4][4];
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                FieldPropability prob = new FieldPropability(_wumpusProbability, _pitProbability);
+                FieldProbability prob = new FieldProbability(_wumpusProbability, _pitProbability);
                 prob.calculateDanagerProbability();
 
                 _boardProbabilities[i][j] = prob;
             }
         }
-        _boardProbabilities[0][0] = new FieldPropability(0, 0);
+        _boardProbabilities[0][0] = new FieldProbability(0, 0);
         isInitialized = true;
     }
 
@@ -63,18 +61,6 @@ public class BoardProbabilities {
     //endregion
 
     //region public methods
-
-    public static int GetBoardSize() {
-        return _boardProbabilities.length;
-    }
-
-    public static boolean IsInitialized() {
-        return isInitialized;
-    }
-
-    public static FieldPropability[][] GetDeepCopy() {
-        return deepCopy(_boardProbabilities);
-    }
 
     public static void AddPointToFrontier(int x, int y) {
         Point p = new Point(x, y);
@@ -89,6 +75,9 @@ public class BoardProbabilities {
         WumpusProbability.calculateNewProbabilities();
     }
 
+    /**
+     * @return the point in the frontier with the lowest danger value
+     */
     public static Point GetNextPosition() {
         double minDanger = Double.POSITIVE_INFINITY;
         int x = 0;
@@ -109,14 +98,15 @@ public class BoardProbabilities {
         Point res = new Point(x + 1, y + 1);
         _frontier.remove(new Point(x, y));
 
-        GUI.SetBoardProbabilities(_boardProbabilities);
+        //You can use this to visualize the probabilities on the board
+        //GUI.SetBoardProbabilities(_boardProbabilities);
 
         return res;
     }
 
     //endregion
 
-    //region get set Probabilities
+    //region getter and setter
 
     public static void set_wumpusProbability(int X, int Y, double wumpusProbability) {
         _boardProbabilities[X][Y].setWumpus_prob(wumpusProbability);
@@ -134,12 +124,20 @@ public class BoardProbabilities {
         return _boardProbabilities[X][Y].getWumpus_prob();
     }
 
-    public static double get_pitProbability(int X, int Y) {
-        return _boardProbabilities[X][Y].getPit_prob();
-    }
-
     public static List<Point> get_frontier() {
         return _frontier;
+    }
+
+    public static int GetBoardSize() {
+        return _boardProbabilities.length;
+    }
+
+    public static boolean IsInitialized() {
+        return isInitialized;
+    }
+
+    public static FieldProbability[][] GetDeepCopy() {
+        return deepCopy(_boardProbabilities);
     }
 
     //endregion
@@ -147,11 +145,22 @@ public class BoardProbabilities {
     //region private methods
 
     private static double getDangerProbability(int x, int y) {
-        FieldPropability fieldPropability = _boardProbabilities[x][y];
-        return fieldPropability.getDanger_prob();
+        FieldProbability fieldProbability = _boardProbabilities[x][y];
+        return fieldProbability.getDanger_prob();
     }
 
+    //endregion
+
+    //region debugging
+
+    /**
+     * this method is used for debugging
+     */
     private static void printDebuggingInfo() {
+        df = new DecimalFormat("#.##");
+        df.setMinimumFractionDigits(3);
+        df.setMaximumFractionDigits(3);
+
         System.out.println("Pit Prob");
         printPitProbabilities();
         System.out.println("Wumpus Prob");
@@ -205,7 +214,7 @@ public class BoardProbabilities {
         }
     }
 
-    //end region
+    //endregion
 
 
 }

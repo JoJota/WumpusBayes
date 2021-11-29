@@ -6,17 +6,20 @@ import wumpusworld.World;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * this class contains some general static methods that are used in several other classes
+ */
 public class Common {
     public static List<Point> getUnvisitedNeighbors(Point point, World world) {
-        List<Point> neighborsunvisited = getNeighbors(point, world);
-        neighborsunvisited.removeIf(n -> world.isVisited(n.x + 1, n.y + 1));
-        return neighborsunvisited;
+        List<Point> res = getNeighbors(point, world);
+        res.removeIf(n -> world.isVisited(n.x + 1, n.y + 1));
+        return res;
     }
 
     public static List<Point> getVisitedNeighbors(Point point, World world) {
-        List<Point> neighborsvisited = getNeighbors(point, world);
-        neighborsvisited.removeIf(n -> !world.isVisited(n.x + 1, n.y + 1));
-        return neighborsvisited;
+        List<Point> res = getNeighbors(point, world);
+        res.removeIf(n -> !world.isVisited(n.x + 1, n.y + 1));
+        return res;
     }
 
     public static List<Point> getNeighbors(Point point, World world) {
@@ -41,8 +44,8 @@ public class Common {
         return res;
     }
 
-    public static FieldPropability[][] deepCopy(FieldPropability[][] original) {
-        FieldPropability[][] result = new FieldPropability[original.length][original[0].length];
+    public static FieldProbability[][] deepCopy(FieldProbability[][] original) {
+        FieldProbability[][] result = new FieldProbability[original.length][original[0].length];
         for (int i = 0; i < original.length; i++) {
             for (int j = 0; j < original[0].length; j++) {
                 result[i][j] = original[i][j].copy();
