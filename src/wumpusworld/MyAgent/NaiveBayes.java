@@ -33,6 +33,7 @@ public class NaiveBayes {
 
         Point p = new Point(_world.getPlayerX(), _world.getPlayerY());
         setNeighborPitProbabilities(p);
+        setNeighborWumpusProbabilities(p);
 
         for (int i = size - 1; i >= 0; i--) {
             for (int j = 0; j < size; j++) {
@@ -56,6 +57,16 @@ public class NaiveBayes {
             List<Point> neighbors = getNeighbors(myPoint, _world);
             for (Point neighbor : neighbors) {
                 BoardProbabilities.set_pitProbability(neighbor.x, neighbor.y, 0);
+            }
+        }
+    }
+
+    private static void setNeighborWumpusProbabilities(Point point) {
+        if (!_world.hasStench(point.x, point.y)) {
+            Point myPoint = new Point(point.x - 1, point.y - 1);
+            List<Point> neighbors = getNeighbors(myPoint, _world);
+            for (Point neighbor : neighbors) {
+                BoardProbabilities.set_wumpusProbability(neighbor.x, neighbor.y, 0);
             }
         }
     }
@@ -102,6 +113,11 @@ public class NaiveBayes {
 
         System.out.println("--------------------------------------------");
         double res = pitValue / alpha;
+
+        if (alpha == 0) {
+            return 0;
+        }
+
         return res;
     }
 
@@ -139,7 +155,6 @@ public class NaiveBayes {
                 List<Point> newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
                 List<Double> newProbabilities = new ArrayList<>(probabilities);
-                //newProbabilities.add(_calcProbabilities[point.y][point.x].getPit_prob());
                 newProbabilities.add(0.2);
                 FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
                 new_pit_probability[point.y][point.x].setPit_prob(1);
@@ -149,7 +164,6 @@ public class NaiveBayes {
                 newFrontier = new ArrayList<>(frontier);
                 newFrontier.remove(point);
                 newProbabilities = new ArrayList<>(probabilities);
-                //newProbabilities.add(1 - _calcProbabilities[point.y][point.x].getPit_prob());
                 newProbabilities.add(0.8);
                 new_pit_probability = deepCopy(pip_probability);
                 new_pit_probability[point.y][point.x].setPit_prob(0);
@@ -161,6 +175,7 @@ public class NaiveBayes {
             List<Point> newFrontier = deepCopy(frontier);
             newFrontier.remove(point);
             List<Double> newProbabilities = new ArrayList<>(probabilities);
+            newProbabilities.add(1.0);
             _calcProbabilities[point.y][point.x].setPit_prob(0.0);
             FieldPropability[][] new_pit_probability = deepCopy(pip_probability);
             new_pit_probability[point.y][point.x].setPit_prob(0);
@@ -180,18 +195,51 @@ public class NaiveBayes {
     }
 
     private static boolean hasToBePit(Point point) {
+        int i = 3;
+        for (Point breezeNeighbor : getNeighbors(point, _world)) {
+            if (_world.hasBreeze(breezeNeighbor.x + 1, breezeNeighbor.y + 1)) {
+                if (onlyPossiblePitAroundBreeze(breezeNeighbor, point)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean onlyPossiblePitAroundBreeze(Point breezePoint, Point pitPoint) {
+        List<Point> neighbors = getNeighbors(breezePoint, _world);
+        neighbors.remove(pitPoint);
+        for (Point neighbor : neighbors) {
+            if (canBePit(neighbor)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean canBePit(Point point) {
+        if (_world.isVisited(point.x + 1, point.y + 1)) {
+            return _world.hasPit(point.x + 1, point.y + 1);
+        }
+
+        double probability = _calcProbabilities[point.y][point.x].getPit_prob();
+        return probability > 0;
+    }
+
+    private static boolean hasToBePit2(Point point) {
+        if (_calcProbabilities[point.y][point.x].getPit_prob() == 1) {
+            return true;
+        }
+
         for (Point p : getVisitedNeighbors(point, _world)) {
             if (_world.hasBreeze(p.x + 1, p.y + 1)) {
                 List<Point> pitPossibilities = new ArrayList<>();
                 for (Point q : getNeighbors(p, _world)) {
-                    // CARINA: if (_world.hasPit(q.x + 1, q.y + 1) || pip_probability[q.x][q.y].getPit_prob() == 1) {
                     if (_world.hasPit(q.x + 1, q.y + 1) || _calcProbabilities[q.y][q.x].getPit_prob() == 1) {
                         pitPossibilities.clear();
                         break;
                     }
-                    // CARINA if (!_world.isVisited(q.x + 1, q.y + 1) && pip_probability[q.x][q.y].getPit_prob() == 0.2) {
-                    if (!_world.isVisited(q.x + 1, q.y + 1) && _calcProbabilities[q.y][q.x].getPit_prob() == 0.2) {
-                        // CARINA if(couldBePit(q)) pitPossibilities.add(q);
+                    if (!_world.isVisited(q.x + 1, q.y + 1) && _calcProbabilities[q.y][q.x].getPit_prob() > 0) {
                         pitPossibilities.add(q);
                     }
                 }
@@ -199,7 +247,6 @@ public class NaiveBayes {
                 if (pitPossibilities.contains(point) && pitPossibilities.size() == 1) {
                     return true;
                 }
-                // ANFANG solution johannes
                 List<Point> unvisitedBreezeNeighbors = getUnvisitedNeighbors(p, _world);
                 unvisitedBreezeNeighbors.remove(point);
                 for (Point vBN : unvisitedBreezeNeighbors) {
@@ -214,8 +261,6 @@ public class NaiveBayes {
                         }
                     }
                 }
-                // ENDE SOLUTION JOHANNES
-                //System.out.println(pitPossibilities);
             }
         }
         return false;

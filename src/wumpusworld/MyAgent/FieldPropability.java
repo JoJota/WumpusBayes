@@ -4,7 +4,7 @@ public class FieldPropability {
     private double wumpus_prob;
     private double pit_prob;
     private double danger_prob;
-    private final double wumpus_weight = 5;
+    private final double wumpus_weight = 4;
     private final double pit_weight = 1;
 
     public FieldPropability(double wumpus_prob, double pit_prob) {
@@ -37,7 +37,7 @@ public class FieldPropability {
 
     public void calculateDanagerProbability() {
         double total_weight = wumpus_weight + pit_weight;
-        this.danger_prob = ((wumpus_prob * wumpus_weight / total_weight) + (pit_prob * pit_weight / total_weight)) / 2;
+        this.danger_prob = ((wumpus_prob * wumpus_weight) + (pit_prob * pit_weight)) / total_weight;
     }
 
     public FieldPropability copy() {
