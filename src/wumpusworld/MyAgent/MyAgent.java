@@ -40,7 +40,6 @@ public class MyAgent implements Agent
         //Location of the player
         int X = w.getPlayerX();
         int Y = w.getPlayerY();
-
         //Basic action:
         //Grab Gold if we can.
         if (w.hasGlitter(X, Y)) {
@@ -67,6 +66,8 @@ public class MyAgent implements Agent
 
         //move to the new point
         moveToPoint();
+
+
     }
 
     /**

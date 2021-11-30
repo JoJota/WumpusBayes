@@ -9,7 +9,14 @@ import java.util.List;
 import java.util.Set;
 
 public class Dijkstra {
-
+    /**
+     * This method is used to calculate the shortest path from the current position to point
+     * for each Point it searches for the neighbors and updates their costs and path from the startingpoint
+     *
+     * @param world current world state with the position the player is at the moment
+     * @param point The Point the player wants to move to
+     * @return List with all moves that need to be executed to reach point
+     */
     public static List<String> GetShortestPath(World world, Point point) {
 
         List<String> res;
@@ -99,7 +106,12 @@ public class Dijkstra {
         return res;
     }
 
-
+    /**
+     * This methods gives the Moves which needed to be done do get from the current Direction to the move_dir
+     * @param move_dir the direction the player should move to
+     * @param dirCurrent the current direction the player is at
+     * @return a List of Strings with all moves that needed to be done
+     */
     private static List<String> getNewMoves(int move_dir, int dirCurrent) {
         List<String> moves = new ArrayList<>();
         if (dirCurrent == World.DIR_UP) {
@@ -143,6 +155,12 @@ public class Dijkstra {
         return moves;
     }
 
+
+    /**
+     * This method finds the point with the lowest cost in a set of Dijkstra points
+     * @param unvisited all points that are not visited at the moment
+     * @return point with the lowest cost so far
+     */
     private static DijkstraPoint getLowestCostPoint(Set<DijkstraPoint> unvisited) {
         DijkstraPoint lowest = null;
         int lowestCost = Integer.MAX_VALUE;
